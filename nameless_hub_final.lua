@@ -2007,7 +2007,7 @@ local Tabs = {
     }),
     Leviathan = Window:AddTab({
         Title = "Leviathan",
-        Icon = "loader"
+        Icon = "zap"
     }),
     Raids = Window:AddTab({
         Title = "Raid",
@@ -10897,7 +10897,9 @@ Actived = function()
         end
     end
 end
+-- ==================== TAB LEVIATHAN ====================
 Tabs.Leviathan:AddSection("Leviathan")
+-- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
 local ImageButton = Instance.new("ImageButton");
