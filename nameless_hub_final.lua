@@ -10863,6 +10863,29 @@ task.spawn(function()
         end
     end
 end)
+-- =========================================================
+-- AUTO MASTERY FRUIT M1 (Technique Redz-LongHiHi Beta)
+-- =========================================================
+task.spawn(function()
+    while task.wait() do
+        if _G.AutoMastery or _G.FarmMastery or _G.FarmMastery_G or _G.FarmMastery_Dev then
+            pcall(function()
+                local Character = game.Players.LocalPlayer.Character
+                if not Character then return end
+                local Tool = Character:FindFirstChildOfClass("Tool")
+                if Tool and Tool.ToolTip == "Blox Fruit" then
+                    if Tool:GetAttribute("WeaponType") ~= "Melee" and Tool:GetAttribute("WeaponType") ~= "Sword" then
+                        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                        if Tool:FindFirstChild("Attack") then
+                            Tool.Attack:Destroy()
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
 CameraShakerR = require(game.ReplicatedStorage.Util.CameraShaker)
 CameraShakerR:Stop()
 get_Monster = function()
