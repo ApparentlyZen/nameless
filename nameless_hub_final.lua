@@ -10996,3 +10996,19 @@ v496:AddToggle({
         end
     end
 })
+
+
+-- ============================================================
+-- LINORIA : RENDER FINAL (OBLIGATOIRE POUR AFFICHER LE MENU)
+-- ============================================================
+local ThemeManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/ThemeManager.lua'))()
+local SaveManager  = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/SaveManager.lua'))()
+
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+
+SaveManager:SetFolder('NamelessClient')
+SaveManager:BuildConfigSection(v496:AddLeftGroupbox('Config'))
+ThemeManager:ApplyToTab(v496)
+
+Library:Render()
