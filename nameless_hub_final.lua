@@ -438,8 +438,7 @@ spawn(function()
             for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                 if _G.BringMonster and v.Name == Mon and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
                     if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 320 then
-                        v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                        v.HumanoidRootPart.CFrame = PosMon
+                        v.HumanoidRootPart.CFrame = PosMon * CFrame.new(0, 3, 0)
                         v.HumanoidRootPart.CanCollide = false
                         v.Head.CanCollide = false
                         if v.Humanoid:FindFirstChild("Animator") then
