@@ -1966,7 +1966,7 @@ local Window = Fluent:CreateWindow({
     Size = UDim2.fromOffset(485, 370),
     Acrylic = false,
     Theme = "Rainbow",
-    MinimizeKey = Enum.KeyCode.End
+    MinimizeKey = Enum.KeyCode.RightControl
 })
 local Tabs = {
     Main = Window:AddTab({
@@ -11146,5 +11146,10 @@ ParticleEmitter.Speed = NumberRange.new(5, 10);
 ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
 local rotateTween = TweenService:Create(ImageButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation=360});
 ImageButton.MouseButton1Down:Connect(function()
-	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);
+	Window:Toggle()
+	rotateTween:Play()
+	ParticleEmitter.Rate = 20
+	task.delay(0.5, function()
+		ParticleEmitter.Rate = 0
+	end)
 end);
