@@ -30,50 +30,14 @@ do
     Num_self = 25
 end
 
--- Attente du chargement du jeu
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
 repeat
-    task.wait()
-until plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Loading")
-
--- CONFIGURATION DES MONDES (Simplifiée pour éviter les bugs)
-World1 = (game.PlaceId == 2753915549)
-World2 = (game.PlaceId == 4442272183)
-World3 = (game.PlaceId == 7449423635)
-
--- BYPASS TOTAL : On force Sea à true pour que l'interface s'affiche quoi qu'il arrive
-Sea = true 
-
--- Notification pour confirmer que le script est lancé
-print("Nameless Hub : Chargement de l'interface...")
--- Sea est toujours vrai si on est sur Blox Fruits, ce qui stoppe le Kick
-Sea = isBloxFruit or true
--- Force Sea à true pour supprimer le Kick
-Sea = isBloxFruit or true
-    end)
-until success and start
-
--- Détection intelligente (Bypass A[12])
-local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-local isBloxFruit = info.Name:find("Blox Fruits")
-
-World1 = (game.PlaceId == 2753915549)
-World2 = (game.PlaceId == 4442272183)
-World3 = (game.PlaceId == 7449423635)
-
--- Sea est toujours vrai si on est sur Blox Fruits, ce qui stoppe le Kick
-Sea = isBloxFruit or true
-if isBloxFruit then
-    Sea = true
-else
-    -- Si tu es dans une dimension spéciale (ID inconnu), on force quand même
-    Sea = true 
-    -- On force World3 par défaut car le Leviathan et les events sont souvent liés au monde 3
-    World3 = true 
-end
+    local start = plr.PlayerGui:WaitForChild("Main"):WaitForChild("Loading") and game:IsLoaded()
+    wait()
+until start
+World1 = game.PlaceId == 2753915549
+World2 = game.PlaceId == 4442272183
+World3 = game.PlaceId == 7449423635
+Sea = World1 or World2 or World3 or plr:Kick("❌ Error : A[12]Blox Fruits ❌")
 Marines = function()
     replicated.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
 end
@@ -314,7 +278,6 @@ Attack.Kill = function(model, Succes)
             model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
         end
         PosMon = model:GetAttribute("Locked").Position
-        BringEnemy()
         EquipWeapon(_G.SelectWeapon)
         local Equipped = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
         local ToolTip = Equipped.ToolTip
@@ -343,7 +306,6 @@ Attack.Kill2 = function(model, Succes)
             model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
         end
         PosMon = model:GetAttribute("Locked").Position
-        BringEnemy()
         EquipWeapon(_G.SelectWeapon)
         local Equipped = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
         local ToolTip = Equipped.ToolTip
@@ -372,7 +334,6 @@ Attack.KillSea = function(model, Succes)
             model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
         end
         PosMon = model:GetAttribute("Locked").Position
-        BringEnemy()
         EquipWeapon(_G.SelectWeapon)
         local Equipped = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
         local ToolTip = Equipped.ToolTip
@@ -392,7 +353,6 @@ Attack.Sword = function(model, Succes)
             model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
         end
         PosMon = model:GetAttribute("Locked").Position
-        BringEnemy()
         weaponSc("Sword")
         _tp(model.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
         if RandomCFrame then
@@ -415,7 +375,6 @@ Attack.Mas = function(model, Succes)
             model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
         end
         PosMon = model:GetAttribute("Locked").Position
-        BringEnemy()
         if model.Humanoid.Health <= HealthM then
             _tp(model.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
             Useskills("Blox Fruit", "Z")
@@ -433,7 +392,6 @@ Attack.Masgun = function(model, Succes)
             model:SetAttribute("Locked", model.HumanoidRootPart.CFrame)
         end
         PosMon = model:GetAttribute("Locked").Position
-        BringEnemy()
         if model.Humanoid.Health <= HealthM then
             _tp(model.HumanoidRootPart.CFrame * CFrame.new(0, 35, 8))
             Useskills("Gun", "Z")
@@ -467,24 +425,36 @@ statsSetings = function(Num, value)
         end
     end
 end
-BringEnemy = function()
-    if not _B then
-        return
-    end
-    for _, v in pairs(workspace.Enemies:GetChildren()) do
-        if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-            if (v.PrimaryPart.Position - PosMon).Magnitude <= 300 then
-                v.PrimaryPart.CFrame = CFrame.new(PosMon)
-                v.PrimaryPart.CanCollide = true;
-                v:FindFirstChild("Humanoid").WalkSpeed = 0;
-                v:FindFirstChild("Humanoid").JumpPower = 0;
-                if v.Humanoid:FindFirstChild("Animator") then
-                    v.Humanoid.Animator:Destroy()
-                end;
-                plr.SimulationRadius = math.huge
+-- ==================== BRING MOB (Redz Version) ====================
+_G.BringMonster = true
+PosMon = CFrame.new(0,0,0)
+spawn(function()
+    while task.wait() do
+        pcall(function()
+            for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                if _G.BringMonster and v.Name == Mon and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                    if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 320 then
+                        v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                        v.HumanoidRootPart.CFrame = PosMon
+                        v.HumanoidRootPart.CanCollide = false
+                        v.Head.CanCollide = false
+                        if v.Humanoid:FindFirstChild("Animator") then
+                            v.Humanoid.Animator:Destroy()
+                        end
+                        sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                    end
+                end
             end
-        end
-    end                    	
+        end)
+    end
+end)
+-- Fonction de support (InMyNetWork)
+function InMyNetWork(part)
+    if not isnetworkowner then
+        return (part.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 320
+    else
+        return isnetworkowner(part)
+    end
 end
 Useskills = function(weapon, skill)
     if weapon == "Melee" then
@@ -2018,10 +1988,6 @@ local Tabs = {
     }),
     SeaEvent = Window:AddTab({
         Title = "Sea Events",
-        Icon = "anchor"
-    }),
-    Leviathan = Window:AddTab({
-        Title = "Leviathan",
         Icon = "anchor"
     }),
     Mirage = Window:AddTab({
@@ -4082,7 +4048,7 @@ local Bringmob = Tabs.Settings:AddToggle("Bringmob", {
     Default = true
 })
 Bringmob:OnChanged(function(Value)
-    _B = Value
+    _G.BringMonster = Value
 end)
 local BusuAura = Tabs.Settings:AddToggle("BusuAura", {
     Title = "Auto Turn on Buso",
@@ -7846,7 +7812,65 @@ local ListSeaZone = {
     "Lv 6",
     "Lv Infinite"
 }
--- [Leviathan features moved to Tabs.Leviathan]
+local SPYING = Tabs.SeaEvent:AddParagraph({
+    Title = " Spy Status ",
+    Content = ""
+})
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
+            if spycheck then
+                SPYING:SetDesc(" Spy Leviathan  : " .. tostring(spycheck))
+                if tostring(spycheck) == 5 then
+                    SPYING:SetDesc(" Spy Leviathan : Already Done!!")
+                end
+            end
+        end)
+    end
+end)
+Tabs.SeaEvent:AddButton({
+    Title = "Buy Fracments with Spy",
+    Description = "Buy the spy for finding leviathan",
+    Callback = function()
+        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
+    end
+})
+local FloD = Tabs.SeaEvent:AddParagraph({
+    Title = " FlozenDimension Status ",
+    Content = ""
+})
+spawn(function()
+    pcall(function()
+        while wait(.2) do
+            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
+                FloD:SetDesc(' Flozen Dimension : True')
+            else
+                FloD:SetDesc(' Flozen Dimension : False')
+            end
+        end
+    end)
+end)
+local Q = Tabs.SeaEvent:AddToggle("Q", {
+    Title = "Auto Teleport Frozen Dimension",
+    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.FrozenTP = Value
+end)
+spawn(function()
+    while wait(.1) do
+        if _G.FrozenTP then
+            pcall(function()
+                if workspace.Map:FindFirstChild("LeviathanGate") then
+                    _tp(workspace.Map.LeviathanGate.CFrame)
+                    replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("OpenLeviathanGate")
+                end
+            end)
+        end
+    end
+end)
 local Q = Tabs.SeaEvent:AddToggle("Q", {
     Title = "Auto Drive To Hydra Island",
     Description = "",
@@ -8047,7 +8071,14 @@ Q = Tabs.SeaEvent:AddToggle("Q", {
 Q:OnChanged(function(Value)
     _G.SeaBeast1 = Value
 end)
--- [Auto Attack Leviathan moved to Tabs.Leviathan]
+Q = Tabs.SeaEvent:AddToggle("Q", {
+    Title = "Auto Attack Leviathan",
+    Description = "",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.Leviathan1 = Value
+end)
 spawn(function()
     while wait() do
         pcall(function()
@@ -8439,206 +8470,6 @@ Tabs.SeaEvent:AddButton({
     Description = "",
     Callback = function()
         replicated.Modules.Net:FindFirstChild("RE/TouchKitsuneStatue"):FireServer()
-    end
-})
-
-
-Tabs.Leviathan:AddSection("Leviathan / Frozen Dimension")
-local SPYING = Tabs.Leviathan:AddParagraph({
-    Title = " Spy Status ",
-    Content = ""
-})
-spawn(function()
-    while wait(.2) do
-        pcall(function()
-            local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
-            if spycheck then
-                SPYING:SetDesc(" Spy Leviathan  : " .. tostring(spycheck))
-                if tostring(spycheck) == 5 then
-                    SPYING:SetDesc(" Spy Leviathan : Already Done!!")
-                end
-            end
-        end)
-    end
-end)
-Tabs.Leviathan:AddButton({
-    Title = "Buy Fracments with Spy",
-    Description = "Buy the spy for finding leviathan",
-    Callback = function()
-        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
-    end
-})
-local FloD = Tabs.Leviathan:AddParagraph({
-    Title = " FlozenDimension Status ",
-    Content = ""
-})
-spawn(function()
-    pcall(function()
-        while wait(.2) do
-            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
-                FloD:SetDesc(' Flozen Dimension : True')
-            else
-                FloD:SetDesc(' Flozen Dimension : False')
-            end
-        end
-    end)
-end)
-local Q = Tabs.Leviathan:AddToggle("Q", {
-    Title = "Auto Teleport Frozen Dimension",
-    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
-    Default = false
-})
-Q:OnChanged(function(Value)
-    _G.FrozenTP = Value
-end)
-spawn(function()
-    while wait(.1) do
-        if _G.FrozenTP then
-            pcall(function()
-                if workspace.Map:FindFirstChild("LeviathanGate") then
-                    _tp(workspace.Map.LeviathanGate.CFrame)
-                    replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("OpenLeviathanGate")
-                end
-            end)
-        end
-    end
-end)
-local Q = Tabs.Leviathan:AddToggle("Q", {
-    Title = "Auto Find Leviathan",
-    Description = "",
-    Default = false
-})
-Q:OnChanged(function(Value)
-    _G.FindLeviathan = Value
-end)
-spawn(function()
-    while wait() do
-        pcall(function()
-            if _G.FindLeviathan then
-                if not workspace.SeaBeasts:FindFirstChild("Leviathan") then
-                    local myBoat = CheckBoat()
-                    if not myBoat then
-                        local buyBoatCFrame = CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781)
-                        TeleportToTarget(buyBoatCFrame)
-                        if (buyBoatCFrame.Position - plr.Character.HumanoidRootPart.Position).Magnitude <= 10 then
-                            replicated.Remotes.CommF_:InvokeServer("BuyBoat", _G.SelectedBoat)
-                        end
-                    else
-                        if plr.Character.Humanoid.Sit == false then
-                            _tp(myBoat.VehicleSeat.CFrame * CFrame.new(0, 1, 0))
-                        else
-                            repeat
-                                task.wait()
-                                _tp(CFrame.new(-10000000, 31, 37016.25))
-                            until workspace.SeaBeasts:FindFirstChild("Leviathan") or not _G.FindLeviathan or plr.Character.Humanoid.Sit == false
-                            plr.Character.Humanoid.Sit = false
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end)
-local Q = Tabs.Leviathan:AddToggle("Q", {
-    Title = "Auto Attack Leviathan",
-    Description = "",
-    Default = false
-})
-Q:OnChanged(function(Value)
-    _G.Leviathan1 = Value
-end)
-spawn(function()
-    while wait() do
-        pcall(function()
-            if _G.Leviathan1 then
-                if workspace.SeaBeasts:FindFirstChild("Leviathan") then
-                    for a, b in pairs(workspace.SeaBeasts:GetChildren()) do
-                        if b:FindFirstChild("HumanoidRootPart") and b:FindFirstChild("Leviathan Segment") and b:FindFirstChild("Health") and b.Health.Value > 0 then
-                            repeat
-                                task.wait()
-                                spawn(function()
-                                    _tp(CFrame.new(b.HumanoidRootPart.Position.X, game:GetService("Workspace").Map["WaterBase-Plane"].Position.Y + 200, b.HumanoidRootPart.Position.Z))
-                                end)
-                                if plr:DistanceFromCharacter(b.HumanoidRootPart.CFrame.Position) <= 500 then
-                                    MousePos = b:FindFirstChild("Leviathan Segment").Position;
-                                    if CheckF() then
-                                        weaponSc("Blox Fruit")
-                                        Useskills("Blox Fruit", "Z")
-                                        Useskills("Blox Fruit", "X")
-                                        Useskills("Blox Fruit", "C")
-                                    else
-                                        Useskills("Melee", "Z")
-                                        Useskills("Melee", "X")
-                                        Useskills("Melee", "C")
-                                        wait(.1)
-                                        Useskills("Sword", "Z")
-                                        Useskills("Sword", "X")
-                                        wait(.1)
-                                        Useskills("Blox Fruit", "Z")
-                                        Useskills("Blox Fruit", "X")
-                                        Useskills("Blox Fruit", "C")
-                                        wait(.1)
-                                        Useskills("Gun", "Z")
-                                        Useskills("Gun", "X")
-                                    end
-                                end
-                            until _G.Leviathan1 == false or not b:FindFirstChild("HumanoidRootPart") or not b.Parent or b.Health.Value <= 0
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end)
-Tabs.Leviathan:AddSection("Skill Settings (Flawless Fusion)")
-local Q = Tabs.Leviathan:AddToggle("Q", {
-    Title = "Select Use Fruit",
-    Default = true
-})
-Q:OnChanged(function(Value)
-    getgenv().UseSeaFruitSkill = Value
-end)
-local Q = Tabs.Leviathan:AddToggle("Q", {
-    Title = "Select Use Melee",
-    Default = true
-})
-Q:OnChanged(function(Value)
-    getgenv().UseSeaMeleeSkill = Value
-end)
-local Q = Tabs.Leviathan:AddToggle("Q", {
-    Title = "Select Use Sword",
-    Default = true
-})
-Q:OnChanged(function(Value)
-    getgenv().UseSeaSwordSkill = Value
-end)
-local Q = Tabs.Leviathan:AddToggle("Q", {
-    Title = "Select Use Gun",
-    Default = true
-})
-Q:OnChanged(function(Value)
-    getgenv().UseSeaGunSkill = Value
-end)
-Tabs.Leviathan:AddSection("Craft Leviathan Items")
-Tabs.Leviathan:AddButton({
-    Title = "Craft LeviathanCrown",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanCrown")
-    end
-})
-Tabs.Leviathan:AddButton({
-    Title = "Craft LeviathanShield",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanShield")
-    end
-})
-Tabs.Leviathan:AddButton({
-    Title = "Craft LeviathanBoat",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanBoat")
     end
 })
 
