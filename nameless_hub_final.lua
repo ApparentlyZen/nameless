@@ -8251,6 +8251,14 @@ spawn(function()
                                             Useskills("Gun", "X")
                                         end
                                     end
+                                    -- Auto Collect Leviathan Heart
+                                    if _G.LevCollect then
+                                        for _, v in pairs(workspace:GetChildren()) do
+                                            if v.Name == "Leviathan Heart" and v:FindFirstChild("Handle") then
+                                                plr.Character.HumanoidRootPart.CFrame = v.Handle.CFrame
+                                            end
+                                        end
+                                    end
                                 end
                             until _G.Leviathan1 == false or not b:FindFirstChild("HumanoidRootPart") or not b.Parent or b.Health.Value <= 0
                         end
@@ -10906,72 +10914,67 @@ Actived = function()
     end
 end
 -- ==================== TAB LEVIATHAN ====================
-
--- Config armes Leviathan (tout actif par defaut)
 _G.LevUseMelee = true
 _G.LevUseSword = true
 _G.LevUseBlox  = true
 _G.LevUseGun   = true
 
--- Section : Spy
 Tabs.Leviathan:AddSection("Leviathan / Spy")
 local SPYING_LEV = Tabs.Leviathan:AddParagraph({
     Title = " Spy Status ",
-    Content = "Loading..."
+    Content = "Click Refresh to update"
 })
-spawn(function()
-    task.wait(3)
-    while wait(.2) do
+Tabs.Leviathan:AddButton({
+    Title = "Refresh Spy Status",
+    Description = "",
+    Callback = function()
         pcall(function()
             local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
             if spycheck then
                 if tostring(spycheck) == "5" then
-                    SPYING_LEV:SetDesc(" Spy Leviathan : Already Done!!")
+                    SPYING_LEV:SetDesc(" Spy : Already Done!!")
                 else
-                    SPYING_LEV:SetDesc(" Spy Leviathan : " .. tostring(spycheck) .. " / 5")
+                    SPYING_LEV:SetDesc(" Spy : " .. tostring(spycheck) .. " / 5")
                 end
             end
         end)
     end
-end)
+})
 Tabs.Leviathan:AddButton({
     Title = "Buy Fragments with Spy",
     Description = "Buy the spy for finding leviathan",
     Callback = function()
-        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
+        pcall(function()
+            replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "2")
+        end)
     end
 })
 
--- Section : Live Status
 Tabs.Leviathan:AddSection("Live Status")
 local LevHP_LEV = Tabs.Leviathan:AddParagraph({
     Title = " Leviathan HP ",
-    Content = "Not Spawned"
+    Content = "Click Refresh"
 })
 local LevSpawn_LEV = Tabs.Leviathan:AddParagraph({
     Title = " Leviathan Spawn ",
-    Content = "Waiting..."
+    Content = "Click Refresh"
 })
 local FloD_LEV = Tabs.Leviathan:AddParagraph({
     Title = " Frozen Dimension ",
-    Content = "Waiting..."
+    Content = "Click Refresh"
 })
-spawn(function()
-    local wasSpawned = false
-    while wait(.3) do
+Tabs.Leviathan:AddButton({
+    Title = "Refresh Live Status",
+    Description = "",
+    Callback = function()
         pcall(function()
             local lev = workspace.SeaBeasts:FindFirstChild("Leviathan")
             if lev and lev:FindFirstChild("Health") then
                 LevHP_LEV:SetDesc(" HP : " .. tostring(math.floor(lev.Health.Value)))
+                LevSpawn_LEV:SetDesc(" Status : SPAWNED [!]")
             else
-                LevHP_LEV:SetDesc(" Not Spawned")
-            end
-            if lev and not wasSpawned then
-                wasSpawned = true
-                LevSpawn_LEV:SetDesc(" [!] Leviathan SPAWNED !")
-            elseif not lev then
-                wasSpawned = false
-                LevSpawn_LEV:SetDesc(" Not Spawned")
+                LevHP_LEV:SetDesc(" HP : Not Spawned")
+                LevSpawn_LEV:SetDesc(" Status : Not Spawned")
             end
             if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
                 FloD_LEV:SetDesc(" Frozen Dimension : Active [ON]")
@@ -10980,9 +10983,8 @@ spawn(function()
             end
         end)
     end
-end)
+})
 
--- Section : Frozen Dimension
 Tabs.Leviathan:AddSection("Frozen Dimension")
 local FrozenTP_LEV = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
     Title = "Auto Teleport Frozen Dimension",
@@ -10992,7 +10994,6 @@ FrozenTP_LEV:OnChanged(function(Value)
     _G.FrozenTP = Value
 end)
 
--- Section : Auto Attack
 Tabs.Leviathan:AddSection("Auto Attack Leviathan")
 local Leviathan_LEV = Tabs.Leviathan:AddToggle("Leviathan_LEV", {
     Title = "Auto Attack Leviathan (Multi-Segment)",
@@ -11008,21 +11009,7 @@ local LevCollect_LEV = Tabs.Leviathan:AddToggle("LevCollect_LEV", {
 LevCollect_LEV:OnChanged(function(Value)
     _G.LevCollect = Value
 end)
-spawn(function()
-    while wait(.2) do
-        pcall(function()
-            if _G.LevCollect then
-                for _, v in pairs(workspace:GetChildren()) do
-                    if v.Name == "Leviathan Heart" and v:FindFirstChild("Handle") then
-                        plr.Character.HumanoidRootPart.CFrame = v.Handle.CFrame
-                    end
-                end
-            end
-        end)
-    end
-end)
 
--- Section : Combat Settings
 Tabs.Leviathan:AddSection("Combat Settings")
 local LevMelee_LEV = Tabs.Leviathan:AddToggle("LevMelee_LEV", {
     Title = "Use Melee Skills (Z/X/C)",
@@ -11053,32 +11040,36 @@ LevGun_LEV:OnChanged(function(Value)
     _G.LevUseGun = Value
 end)
 
--- Section : Craft
 Tabs.Leviathan:AddSection("Craft Leviathan Items")
 Tabs.Leviathan:AddButton({
     Title = "Craft Leviathan Crown",
     Description = "",
     Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanCrown")
+        pcall(function()
+            replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanCrown")
+        end)
     end
 })
 Tabs.Leviathan:AddButton({
     Title = "Craft Leviathan Shield",
     Description = "",
     Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanShield")
+        pcall(function()
+            replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanShield")
+        end)
     end
 })
 Tabs.Leviathan:AddButton({
     Title = "Craft Leviathan Boat",
     Description = "",
     Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanBoat")
+        pcall(function()
+            replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanBoat")
+        end)
     end
 })
 
--- Section : Sanguine Art
-Tabs.Leviathan:AddSection("Sanguine Art (Leviathan Heart)")
+Tabs.Leviathan:AddSection("Sanguine Art")
 local SanguineArt_LEV = Tabs.Leviathan:AddToggle("SanguineArt_LEV", {
     Title = "Auto SanguineArt",
     Default = false
