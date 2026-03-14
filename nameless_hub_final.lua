@@ -32,8 +32,21 @@ end
 
 repeat
     task.wait()
-    local success, start = pcall(function()
+    local success, loaded = pcall(function()
         return plr.PlayerGui:WaitForChild("Main"):WaitForChild("Loading") and game:IsLoaded()
+    end)
+until success and loaded
+
+-- Détection intelligente (Bypass A[12])
+local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+local isBloxFruit = info.Name:find("Blox Fruits")
+
+World1 = (game.PlaceId == 2753915549)
+World2 = (game.PlaceId == 4442272183)
+World3 = (game.PlaceId == 7449423635)
+
+-- Force Sea à true pour supprimer le Kick
+Sea = isBloxFruit or true
     end)
 until success and start
 
