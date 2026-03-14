@@ -2028,6 +2028,10 @@ local Tabs = {
     Misc = Window:AddTab({
         Title = "Misc",
         Icon = "menu"
+    }),
+    Leviathan = Window:AddTab({
+        Title = "Leviathan",
+        Icon = "zap"
     })
 }
 local FarmLevel = Tabs.Main:AddToggle("FarmLevel", {
@@ -10916,6 +10920,64 @@ Actived = function()
         end
     end
 end
+-- ==================== TAB LEVIATHAN ====================
+Tabs.Leviathan:AddSection("Leviathan / Spy")
+local SPYING_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Spy Status ",
+    Content = ""
+})
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
+            if spycheck then
+                SPYING_LEV:SetDesc(" Spy Leviathan : " .. tostring(spycheck))
+                if tostring(spycheck) == "5" then
+                    SPYING_LEV:SetDesc(" Spy Leviathan : Already Done!!")
+                end
+            end
+        end)
+    end
+end)
+Tabs.Leviathan:AddButton({
+    Title = "Buy Fragments with Spy",
+    Description = "Buy the spy for finding leviathan",
+    Callback = function()
+        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
+    end
+})
+Tabs.Leviathan:AddSection("Frozen Dimension")
+local FloD_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Frozen Dimension Status ",
+    Content = ""
+})
+spawn(function()
+    pcall(function()
+        while wait(.2) do
+            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
+                FloD_LEV:SetDesc(' Frozen Dimension : True')
+            else
+                FloD_LEV:SetDesc(' Frozen Dimension : False')
+            end
+        end
+    end)
+end)
+local FrozenTP_LEV = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
+    Title = "Auto Teleport Frozen Dimension",
+    Default = false
+})
+FrozenTP_LEV:OnChanged(function(Value)
+    _G.FrozenTP = Value
+end)
+Tabs.Leviathan:AddSection("Auto Attack")
+local Leviathan_LEV = Tabs.Leviathan:AddToggle("Leviathan_LEV", {
+    Title = "Auto Attack Leviathan",
+    Default = false
+})
+Leviathan_LEV:OnChanged(function(Value)
+    _G.Leviathan1 = Value
+end)
+-- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
 local ImageButton = Instance.new("ImageButton");
