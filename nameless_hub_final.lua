@@ -38,13 +38,18 @@ repeat
 until success and loaded
 
 -- Détection intelligente (Bypass A[12])
-local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-local isBloxFruit = info.Name:find("Blox Fruits")
+local successInfo, info = pcall(function() 
+    return game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId) 
+end)
+
+local isBloxFruit = successInfo and info.Name:find("Blox Fruits")
 
 World1 = (game.PlaceId == 2753915549)
 World2 = (game.PlaceId == 4442272183)
 World3 = (game.PlaceId == 7449423635)
 
+-- Sea est toujours vrai si on est sur Blox Fruits, ce qui stoppe le Kick
+Sea = isBloxFruit or true
 -- Force Sea à true pour supprimer le Kick
 Sea = isBloxFruit or true
     end)
