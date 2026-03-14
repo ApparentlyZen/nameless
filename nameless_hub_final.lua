@@ -2005,10 +2005,6 @@ local Tabs = {
         Title = "Prehistoric",
         Icon = "loader"
     }),
-    Leviathan = Window:AddTab({
-        Title = "Leviathan",
-        Icon = "zap"
-    }),
     Raids = Window:AddTab({
         Title = "Raid",
         Icon = "target"
@@ -8223,33 +8219,25 @@ spawn(function()
                                 end)
                                 if plr:DistanceFromCharacter(b.HumanoidRootPart.CFrame.Position) <= 500 then
                                     MousePos = b:FindFirstChild("Leviathan Segment").Position;
-                                    if CheckF() and _G.LevUseBlox then
+                                    if CheckF() then
                                         weaponSc("Blox Fruit")
                                         Useskills("Blox Fruit", "Z")
                                         Useskills("Blox Fruit", "X")
                                         Useskills("Blox Fruit", "C")
                                     else
-                                        if _G.LevUseMelee then
-                                            Useskills("Melee", "Z")
-                                            Useskills("Melee", "X")
-                                            Useskills("Melee", "C")
-                                            wait(.1)
-                                        end
-                                        if _G.LevUseSword then
-                                            Useskills("Sword", "Z")
-                                            Useskills("Sword", "X")
-                                            wait(.1)
-                                        end
-                                        if _G.LevUseBlox then
-                                            Useskills("Blox Fruit", "Z")
-                                            Useskills("Blox Fruit", "X")
-                                            Useskills("Blox Fruit", "C")
-                                            wait(.1)
-                                        end
-                                        if _G.LevUseGun then
-                                            Useskills("Gun", "Z")
-                                            Useskills("Gun", "X")
-                                        end
+                                        Useskills("Melee", "Z")
+                                        Useskills("Melee", "X")
+                                        Useskills("Melee", "C")
+                                        wait(.1)
+                                        Useskills("Sword", "Z")
+                                        Useskills("Sword", "X")
+                                        wait(.1)
+                                        Useskills("Blox Fruit", "Z")
+                                        Useskills("Blox Fruit", "X")
+                                        Useskills("Blox Fruit", "C")
+                                        wait(.1)
+                                        Useskills("Gun", "Z")
+                                        Useskills("Gun", "X")
                                     end
                                 end
                             until _G.Leviathan1 == false or not b:FindFirstChild("HumanoidRootPart") or not b.Parent or b.Health.Value <= 0
@@ -10809,7 +10797,7 @@ local _fa_containers = {
 }
 local _fa_u4 = nil
 local _fa_u5 = nil
--- Scan initial pour trouver le Remote caché (Bypass)
+-- Scan initial pour trouver le Remote cachÃ© (Bypass)
 local _fa_v3 = nil
 while true do
     local _fa_v6
@@ -10875,29 +10863,6 @@ task.spawn(function()
         end
     end
 end)
--- =========================================================
--- AUTO MASTERY FRUIT M1 (Technique Redz-LongHiHi Beta)
--- =========================================================
-task.spawn(function()
-    while task.wait() do
-        if _G.AutoMastery or _G.FarmMastery or _G.FarmMastery_G or _G.FarmMastery_Dev then
-            pcall(function()
-                local Character = game.Players.LocalPlayer.Character
-                if not Character then return end
-                local Tool = Character:FindFirstChildOfClass("Tool")
-                if Tool and Tool.ToolTip == "Blox Fruit" then
-                    if Tool:GetAttribute("WeaponType") ~= "Melee" and Tool:GetAttribute("WeaponType") ~= "Sword" then
-                        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 0)
-                        if Tool:FindFirstChild("Attack") then
-                            Tool.Attack:Destroy()
-                        end
-                    end
-                end
-            end)
-        end
-    end
-end)
 CameraShakerR = require(game.ReplicatedStorage.Util.CameraShaker)
 CameraShakerR:Stop()
 get_Monster = function()
@@ -10928,198 +10893,6 @@ Actived = function()
         end
     end
 end
--- ==================== TAB LEVIATHAN ====================
-
--- Variables de config armes Leviathan (par defaut tout actif)
-_G.LevUseMelee  = true
-_G.LevUseSword  = true
-_G.LevUseBlox   = true
-_G.LevUseGun    = true
-
--- ── SECTION : Spy ─────────────────────────────────────────
-Tabs.Leviathan:AddSection("Leviathan / Spy")
-local SPYING_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " Spy Status ",
-    Content = "Loading..."
-})
-spawn(function()
-    while wait(.2) do
-        pcall(function()
-            local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
-            if spycheck then
-                if tostring(spycheck) == "5" then
-                    SPYING_LEV:SetDesc(" Spy Leviathan : Already Done!!")
-                else
-                    SPYING_LEV:SetDesc(" Spy Leviathan : " .. tostring(spycheck) .. " / 5")
-                end
-            end
-        end)
-    end
-end)
-Tabs.Leviathan:AddButton({
-    Title = "Buy Fragments with Spy",
-    Description = "Buy the spy for finding leviathan",
-    Callback = function()
-        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
-    end
-})
-
--- ── SECTION : Status ──────────────────────────────────────
-Tabs.Leviathan:AddSection("Live Status")
-local LevHP_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " Leviathan HP ",
-    Content = "Not Spawned"
-})
-local LevSpawn_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " Leviathan Spawn ",
-    Content = "Waiting..."
-})
-local FloD_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " Frozen Dimension ",
-    Content = "Waiting..."
-})
-spawn(function()
-    local wasSpawned = false
-    while wait(.3) do
-        pcall(function()
-            -- HP en temps reel
-            local lev = workspace.SeaBeasts:FindFirstChild("Leviathan")
-            if lev and lev:FindFirstChild("Health") then
-                LevHP_LEV:SetDesc(" HP : " .. tostring(math.floor(lev.Health.Value)))
-            else
-                LevHP_LEV:SetDesc(" Not Spawned")
-            end
-            -- Notification spawn
-            if lev and not wasSpawned then
-                wasSpawned = true
-                LevSpawn_LEV:SetDesc(" [!] Leviathan SPAWNED !")
-            elseif not lev then
-                wasSpawned = false
-                LevSpawn_LEV:SetDesc(" Not Spawned")
-            end
-            -- Frozen Dimension
-            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
-                FloD_LEV:SetDesc(' Frozen Dimension : Active [ON]')
-            else
-                FloD_LEV:SetDesc(' Frozen Dimension : Inactive [OFF]')
-            end
-        end)
-    end
-end)
-
--- ── SECTION : Frozen Dimension ────────────────────────────
-Tabs.Leviathan:AddSection("Frozen Dimension")
-local FrozenTP_LEV = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
-    Title = "Auto Teleport Frozen Dimension",
-    Default = false
-})
-FrozenTP_LEV:OnChanged(function(Value)
-    _G.FrozenTP = Value
-end)
-
--- ── SECTION : Auto Attack ─────────────────────────────────
-Tabs.Leviathan:AddSection("Auto Attack Leviathan")
-local Leviathan_LEV = Tabs.Leviathan:AddToggle("Leviathan_LEV", {
-    Title = "Auto Attack Leviathan (Multi-Segment)",
-    Default = false
-})
-Leviathan_LEV:OnChanged(function(Value)
-    _G.Leviathan1 = Value
-end)
-
--- Auto Collect Leviathan Heart
-local LevCollect_LEV = Tabs.Leviathan:AddToggle("LevCollect_LEV", {
-    Title = "Auto Collect Leviathan Heart",
-    Default = false
-})
-LevCollect_LEV:OnChanged(function(Value)
-    _G.LevCollect = Value
-end)
-spawn(function()
-    while wait(.2) do
-        pcall(function()
-            if _G.LevCollect then
-                for _, v in pairs(workspace:GetChildren()) do
-                    if v.Name == "Leviathan Heart" or (v:FindFirstChild("Name") and v.Name:find("Leviathan")) then
-                        if v:FindFirstChild("Handle") then
-                            plr.Character.HumanoidRootPart.CFrame = v.Handle.CFrame
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end)
-
--- ── SECTION : Settings Armes ──────────────────────────────
-Tabs.Leviathan:AddSection("Combat Settings")
-
-local LevMelee_LEV = Tabs.Leviathan:AddToggle("LevMelee_LEV", {
-    Title = "Use Melee Skills (Z/X/C)",
-    Default = true
-})
-LevMelee_LEV:OnChanged(function(Value)
-    _G.LevUseMelee = Value
-end)
-
-local LevSword_LEV = Tabs.Leviathan:AddToggle("LevSword_LEV", {
-    Title = "Use Sword Skills (Z/X)",
-    Default = true
-})
-LevSword_LEV:OnChanged(function(Value)
-    _G.LevUseSword = Value
-end)
-
-local LevBlox_LEV = Tabs.Leviathan:AddToggle("LevBlox_LEV", {
-    Title = "Use Blox Fruit Skills (Z/X/C)",
-    Default = true
-})
-LevBlox_LEV:OnChanged(function(Value)
-    _G.LevUseBlox = Value
-end)
-
-local LevGun_LEV = Tabs.Leviathan:AddToggle("LevGun_LEV", {
-    Title = "Use Gun Skills (Z/X)",
-    Default = true
-})
-LevGun_LEV:OnChanged(function(Value)
-    _G.LevUseGun = Value
-end)
-
--- ── SECTION : Craft Leviathan ─────────────────────────────
-Tabs.Leviathan:AddSection("Craft Leviathan Items")
-Tabs.Leviathan:AddButton({
-    Title = "Craft Leviathan Crown",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanCrown")
-    end
-})
-Tabs.Leviathan:AddButton({
-    Title = "Craft Leviathan Shield",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanShield")
-    end
-})
-Tabs.Leviathan:AddButton({
-    Title = "Craft Leviathan Boat",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanBoat")
-    end
-})
-
--- ── SECTION : Sanguine Art ────────────────────────────────
-Tabs.Leviathan:AddSection("Sanguine Art (Leviathan Heart)")
-local SanguineArt_LEV = Tabs.Leviathan:AddToggle("SanguineArt_LEV", {
-    Title = "Auto SanguineArt",
-    Default = false
-})
-SanguineArt_LEV:OnChanged(function(Value)
-    _G.snaguine = Value
-end)
--- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
 local ImageButton = Instance.new("ImageButton");
@@ -11146,10 +10919,5 @@ ParticleEmitter.Speed = NumberRange.new(5, 10);
 ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
 local rotateTween = TweenService:Create(ImageButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation=360});
 ImageButton.MouseButton1Down:Connect(function()
-	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
-	rotateTween:Play()
-	ParticleEmitter.Rate = 20
-	task.delay(0.5, function()
-		ParticleEmitter.Rate = 0
-	end)
+	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);
 end);
