@@ -1966,7 +1966,7 @@ local Window = Fluent:CreateWindow({
     Size = UDim2.fromOffset(485, 370),
     Acrylic = false,
     Theme = "Rainbow",
-    MinimizeKey = Enum.KeyCode.End
+    MinimizeKey = Enum.KeyCode.RightBracket
 })
 local Tabs = {
     Main = Window:AddTab({
@@ -10797,7 +10797,7 @@ local _fa_containers = {
 }
 local _fa_u4 = nil
 local _fa_u5 = nil
--- Scan initial pour trouver le Remote cachÃ© (Bypass)
+-- Scan initial pour trouver le Remote caché (Bypass)
 local _fa_v3 = nil
 while true do
     local _fa_v6
@@ -10919,5 +10919,6 @@ ParticleEmitter.Speed = NumberRange.new(5, 10);
 ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
 local rotateTween = TweenService:Create(ImageButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation=360});
 ImageButton.MouseButton1Down:Connect(function()
-	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);
+	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.RightBracket, false, game);
+	game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.RightBracket, false, game);
 end);
