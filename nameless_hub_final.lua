@@ -7819,104 +7819,6 @@ local ListSeaZone = {
     "Lv 6",
     "Lv Infinite"
 }
-local SPYING = Tabs.SeaEvent:AddParagraph({
-    Title = " Spy Status ",
-    Content = ""
-})
-spawn(function()
-    while wait(.2) do
-        pcall(function()
-            local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
-            if spycheck then
-                SPYING:SetDesc(" Spy Leviathan  : " .. tostring(spycheck))
-                if tostring(spycheck) == 5 then
-                    SPYING:SetDesc(" Spy Leviathan : Already Done!!")
-                end
-            end
-        end)
-    end
-end)
-Tabs.SeaEvent:AddButton({
-    Title = "Buy Fracments with Spy",
-    Description = "Buy the spy for finding leviathan",
-    Callback = function()
-        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
-    end
-})
-local FloD = Tabs.SeaEvent:AddParagraph({
-    Title = " FlozenDimension Status ",
-    Content = ""
-})
-spawn(function()
-    pcall(function()
-        while wait(.2) do
-            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
-                FloD:SetDesc(' Flozen Dimension : True')
-            else
-                FloD:SetDesc(' Flozen Dimension : False')
-            end
-        end
-    end)
-end)
-local Q = Tabs.SeaEvent:AddToggle("Q", {
-    Title = "Auto Teleport Frozen Dimension",
-    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
-    Default = false
-})
-Q:OnChanged(function(Value)
-    _G.FrozenTP = Value
-end)
-spawn(function()
-    while wait(.1) do
-        if _G.FrozenTP then
-            pcall(function()
-                if workspace.Map:FindFirstChild("LeviathanGate") then
-                    _tp(workspace.Map.LeviathanGate.CFrame)
-                    replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("OpenLeviathanGate")
-                end
-            end)
-        end
-    end
-end)
-local Q = Tabs.SeaEvent:AddToggle("Q", {
-    Title = "Auto Drive To Hydra Island",
-    Description = "",
-    Default = false
-})
-Q:OnChanged(function(Value)
-    _G.SailBoat_Hydra = Value
-end)
-spawn(function()
-    while wait() do
-        if _G.SailBoat_Hydra then
-            pcall(function()
-                local myBoat = CheckBoat()
-                if not myBoat then
-                    local buyBoatCFrame = CFrame.new(- 16927.451, 9.086, 433.864)
-                    TeleportToTarget(buyBoatCFrame)
-                    if (buyBoatCFrame.Position - plr.Character.HumanoidRootPart.Position).Magnitude <= 10 then
-                        replicated.Remotes.CommF_:InvokeServer("BuyBoat", _G.SelectedBoat)
-                    end
-                elseif myBoat then
-                    if plr.Character.Humanoid.Sit == false then
-                        local boatSeatCFrame = myBoat.VehicleSeat.CFrame * CFrame.new(0, 1, 0)
-                        _tp(boatSeatCFrame)
-                    else
-                        repeat
-                            wait()
-                            if CheckEnemiesBoat() or CheckPirateGrandBrigade() or CheckTerrorShark() then
-                                _tp(CFrame.new(5433, 150, 290))
-                            else
-                                _tp(CFrame.new(5433, 35, 290))
-                            end
-                        until _G.SailBoat_Hydra == false or plr.Character:WaitForChild("Humanoid").Sit == false
-                        plr.Character.Humanoid.Sit = false
-                    end
-                end
-            end)
-        end
-    end
-end)
 local Q = Tabs.SeaEvent:AddDropdown("Q", {
     Title = "Choose Boats",
     Values = ListSeaBoat,
@@ -10898,7 +10800,107 @@ Actived = function()
     end
 end
 -- ==================== TAB LEVIATHAN ====================
-Tabs.Leviathan:AddSection("Leviathan")
+Tabs.Leviathan:AddSection("Leviathan / Spy")
+local SPYING = Tabs.Leviathan:AddParagraph({
+    Title = " Spy Status ",
+    Content = ""
+})
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
+            if spycheck then
+                SPYING:SetDesc(" Spy Leviathan  : " .. tostring(spycheck))
+                if tostring(spycheck) == 5 then
+                    SPYING:SetDesc(" Spy Leviathan : Already Done!!")
+                end
+            end
+        end)
+    end
+end)
+Tabs.Leviathan:AddButton({
+    Title = "Buy Fracments with Spy",
+    Description = "Buy the spy for finding leviathan",
+    Callback = function()
+        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
+    end
+})
+Tabs.Leviathan:AddSection("Frozen Dimension")
+local FloD = Tabs.Leviathan:AddParagraph({
+    Title = " FlozenDimension Status ",
+    Content = ""
+})
+spawn(function()
+    pcall(function()
+        while wait(.2) do
+            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
+                FloD:SetDesc(' Flozen Dimension : True')
+            else
+                FloD:SetDesc(' Flozen Dimension : False')
+            end
+        end
+    end)
+end)
+local Q = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
+    Title = "Auto Teleport Frozen Dimension",
+    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.FrozenTP = Value
+end)
+spawn(function()
+    while wait(.1) do
+        if _G.FrozenTP then
+            pcall(function()
+                if workspace.Map:FindFirstChild("LeviathanGate") then
+                    _tp(workspace.Map.LeviathanGate.CFrame)
+                    replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("OpenLeviathanGate")
+                end
+            end)
+        end
+    end
+end)
+Tabs.Leviathan:AddSection("Hydra Island")
+local Q = Tabs.Leviathan:AddToggle("SailBoat_Hydra_LEV", {
+    Title = "Auto Drive To Hydra Island",
+    Description = "",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.SailBoat_Hydra = Value
+end)
+spawn(function()
+    while wait() do
+        if _G.SailBoat_Hydra then
+            pcall(function()
+                local myBoat = CheckBoat()
+                if not myBoat then
+                    local buyBoatCFrame = CFrame.new(- 16927.451, 9.086, 433.864)
+                    TeleportToTarget(buyBoatCFrame)
+                    if (buyBoatCFrame.Position - plr.Character.HumanoidRootPart.Position).Magnitude <= 10 then
+                        replicated.Remotes.CommF_:InvokeServer("BuyBoat", _G.SelectedBoat)
+                    end
+                elseif myBoat then
+                    if plr.Character.Humanoid.Sit == false then
+                        local boatSeatCFrame = myBoat.VehicleSeat.CFrame * CFrame.new(0, 1, 0)
+                        _tp(boatSeatCFrame)
+                    else
+                        repeat
+                            wait()
+                            if CheckEnemiesBoat() or CheckPirateGrandBrigade() or CheckTerrorShark() then
+                                _tp(CFrame.new(5433, 150, 290))
+                            else
+                                _tp(CFrame.new(5433, 35, 290))
+                            end
+                        until _G.SailBoat_Hydra == false or plr.Character:WaitForChild("Humanoid").Sit == false
+                        plr.Character.Humanoid.Sit = false
+                    end
+                end
+            end)
+        end
+    end
+end)
 -- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
