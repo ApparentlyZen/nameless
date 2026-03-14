@@ -30,24 +30,25 @@ do
     Num_self = 25
 end
 
+-- Attente du chargement du jeu
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 repeat
     task.wait()
-    local success, loaded = pcall(function()
-        return plr.PlayerGui:WaitForChild("Main"):WaitForChild("Loading") and game:IsLoaded()
-    end)
-until success and loaded
+until plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Loading")
 
--- Détection intelligente (Bypass A[12])
-local successInfo, info = pcall(function() 
-    return game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId) 
-end)
-
-local isBloxFruit = successInfo and info.Name:find("Blox Fruits")
-
+-- CONFIGURATION DES MONDES (Simplifiée pour éviter les bugs)
 World1 = (game.PlaceId == 2753915549)
 World2 = (game.PlaceId == 4442272183)
 World3 = (game.PlaceId == 7449423635)
 
+-- BYPASS TOTAL : On force Sea à true pour que l'interface s'affiche quoi qu'il arrive
+Sea = true 
+
+-- Notification pour confirmer que le script est lancé
+print("Nameless Hub : Chargement de l'interface...")
 -- Sea est toujours vrai si on est sur Blox Fruits, ce qui stoppe le Kick
 Sea = isBloxFruit or true
 -- Force Sea à true pour supprimer le Kick
