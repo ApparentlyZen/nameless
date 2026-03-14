@@ -10920,6 +10920,7 @@ local SPYING_LEV = Tabs.Leviathan:AddParagraph({
     Content = "Loading..."
 })
 spawn(function()
+    task.wait(3)
     while wait(.2) do
         pcall(function()
             local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
