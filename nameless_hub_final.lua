@@ -4627,6 +4627,85 @@ spawn(function()
         end)
     end
 end)
+local SanguineArt = Tabs.Melee:AddToggle("SanguineArt", {
+    Title = "Auto SanguineArt",
+    Description = "",
+    Default = false
+})
+SanguineArt:OnChanged(function(Value)
+    _G.snaguine = Value
+end)
+spawn(function()
+    while wait(Sec) do
+        if _G.snaguine then
+            pcall(function()
+                if not GetBP("Sanguine Art") then
+                    replicated.Remotes.CommF_:InvokeServer("Sanguine Art")
+                end
+                if not GetBP("Sanguine Art") then
+                    if GetM("Leviathan Heart") >= 1 then
+                        print("Completed!!")
+                    else
+                        if World3 then
+                            _G.DangerSc = "Lv Infinite"
+                            _G.SailBoats = true;
+                        else
+                            _G.SailBoats = false;
+                        end
+                    end
+                    if GetM("Vampire Fang") <= 19 then
+                        if World2 then
+                            local n = GetConnectionEnemies("Vampire")
+                            if n then
+                                repeat
+                                    task.wait()
+                                    Attack.Kill(n, _G.snaguine)
+                                until not _G.snaguine or n.Humanoid.Health <= 0 or not n.Parent
+                            else
+                                _tp(CFrame.new(- 6041.29248046875, 6.402710914611816, - 1304.63330078125))
+                            end
+                        else
+                            replicated.Remotes.CommF_:InvokeServer("TravelDressrosa")
+                        end
+                    end
+                    if GetM("Vampire Fang") >= 20 and GetM("Demonic Wisp") <= 19 then
+                        if World3 then
+                            local n = GetConnectionEnemies("Demonic Soul")
+                            if n then
+                                repeat
+                                    task.wait()
+                                    Attack.Kill(n, _G.snaguine)
+                                until not _G.snaguine or n.Humanoid.Health <= 0 or not n.Parent
+                            else
+                                _tp(CFrame.new(- 9495.6806640625, 453.58624267578125, 5977.3486328125))
+                            end
+                        else
+                            replicated.Remotes.CommF_:InvokeServer("TravelZou")
+                        end
+                    end
+                    if GetM("Vampire Fang") >= 20 and GetM("Demonic Wisp") >= 20 and GetM("Dark Fragment") <= 1 then
+                        if World2 then
+                            local n = GetConnectionEnemies("Darkbeard")
+                            if n then
+                                repeat
+                                    task.wait()
+                                    Attack.Kill(black, _G.snaguine)
+                                until _G.snaguine or black.Humanoid.Health <= 0 or not black.Parent
+                            else
+                                _tp(CFrame.new(3798.4575195313, 13.826690673828, - 3399.806640625))
+                            end
+                        else
+                            replicated.Remotes.CommF_:InvokeServer("TravelDressrosa")
+                        end
+                    end
+                else
+                    replicated.Remotes.CommF_:InvokeServer("BuySanguineArt")
+                end
+            end)
+        end
+    end
+end)
+
 Tabs.Quests:AddSection("Tushita + Yama")
 local Process = Tabs.Quests:AddParagraph({
     Title = "Elites Process ",
@@ -7740,6 +7819,104 @@ local ListSeaZone = {
     "Lv 6",
     "Lv Infinite"
 }
+local SPYING = Tabs.SeaEvent:AddParagraph({
+    Title = " Spy Status ",
+    Content = ""
+})
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            local spycheck = string.match(replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1"), "%d+")
+            if spycheck then
+                SPYING:SetDesc(" Spy Leviathan  : " .. tostring(spycheck))
+                if tostring(spycheck) == 5 then
+                    SPYING:SetDesc(" Spy Leviathan : Already Done!!")
+                end
+            end
+        end)
+    end
+end)
+Tabs.SeaEvent:AddButton({
+    Title = "Buy Fracments with Spy",
+    Description = "Buy the spy for finding leviathan",
+    Callback = function()
+        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
+    end
+})
+local FloD = Tabs.SeaEvent:AddParagraph({
+    Title = " FlozenDimension Status ",
+    Content = ""
+})
+spawn(function()
+    pcall(function()
+        while wait(.2) do
+            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
+                FloD:SetDesc(' Flozen Dimension : True')
+            else
+                FloD:SetDesc(' Flozen Dimension : False')
+            end
+        end
+    end)
+end)
+local Q = Tabs.SeaEvent:AddToggle("Q", {
+    Title = "Auto Teleport Frozen Dimension",
+    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.FrozenTP = Value
+end)
+spawn(function()
+    while wait(.1) do
+        if _G.FrozenTP then
+            pcall(function()
+                if workspace.Map:FindFirstChild("LeviathanGate") then
+                    _tp(workspace.Map.LeviathanGate.CFrame)
+                    replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("OpenLeviathanGate")
+                end
+            end)
+        end
+    end
+end)
+local Q = Tabs.SeaEvent:AddToggle("Q", {
+    Title = "Auto Drive To Hydra Island",
+    Description = "",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.SailBoat_Hydra = Value
+end)
+spawn(function()
+    while wait() do
+        if _G.SailBoat_Hydra then
+            pcall(function()
+                local myBoat = CheckBoat()
+                if not myBoat then
+                    local buyBoatCFrame = CFrame.new(- 16927.451, 9.086, 433.864)
+                    TeleportToTarget(buyBoatCFrame)
+                    if (buyBoatCFrame.Position - plr.Character.HumanoidRootPart.Position).Magnitude <= 10 then
+                        replicated.Remotes.CommF_:InvokeServer("BuyBoat", _G.SelectedBoat)
+                    end
+                elseif myBoat then
+                    if plr.Character.Humanoid.Sit == false then
+                        local boatSeatCFrame = myBoat.VehicleSeat.CFrame * CFrame.new(0, 1, 0)
+                        _tp(boatSeatCFrame)
+                    else
+                        repeat
+                            wait()
+                            if CheckEnemiesBoat() or CheckPirateGrandBrigade() or CheckTerrorShark() then
+                                _tp(CFrame.new(5433, 150, 290))
+                            else
+                                _tp(CFrame.new(5433, 35, 290))
+                            end
+                        until _G.SailBoat_Hydra == false or plr.Character:WaitForChild("Humanoid").Sit == false
+                        plr.Character.Humanoid.Sit = false
+                    end
+                end
+            end)
+        end
+    end
+end)
 local Q = Tabs.SeaEvent:AddDropdown("Q", {
     Title = "Choose Boats",
     Values = ListSeaBoat,
@@ -7901,6 +8078,14 @@ Q = Tabs.SeaEvent:AddToggle("Q", {
 Q:OnChanged(function(Value)
     _G.SeaBeast1 = Value
 end)
+Q = Tabs.SeaEvent:AddToggle("Q", {
+    Title = "Auto Attack Leviathan",
+    Description = "",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.Leviathan1 = Value
+end)
 spawn(function()
     while wait() do
         pcall(function()
@@ -8038,21 +8223,26 @@ spawn(function()
                                 end)
                                 if plr:DistanceFromCharacter(b.HumanoidRootPart.CFrame.Position) <= 500 then
                                     MousePos = b:FindFirstChild("Leviathan Segment").Position;
-                                    if _G.LevMeleeZ then Useskills("Melee", "Z") end
-                                    if _G.LevMeleeX then Useskills("Melee", "X") end
-                                    if _G.LevMeleeC then Useskills("Melee", "C") end
-                                    wait(.1)
-                                    if _G.LevSwordZ then Useskills("Sword", "Z") end
-                                    if _G.LevSwordX then Useskills("Sword", "X") end
-                                    wait(.1)
-                                    if _G.LevBloxZ then Useskills("Blox Fruit", "Z") end
-                                    if _G.LevBloxX then Useskills("Blox Fruit", "X") end
-                                    if _G.LevBloxC then Useskills("Blox Fruit", "C") end
-                                    if _G.LevBloxV then Useskills("Blox Fruit", "V") end
-                                    if _G.LevBloxF then Useskills("Blox Fruit", "F") end
-                                    wait(.1)
-                                    if _G.LevGunZ then Useskills("Gun", "Z") end
-                                    if _G.LevGunX then Useskills("Gun", "X") end
+                                    if CheckF() then
+                                        weaponSc("Blox Fruit")
+                                        Useskills("Blox Fruit", "Z")
+                                        Useskills("Blox Fruit", "X")
+                                        Useskills("Blox Fruit", "C")
+                                    else
+                                        Useskills("Melee", "Z")
+                                        Useskills("Melee", "X")
+                                        Useskills("Melee", "C")
+                                        wait(.1)
+                                        Useskills("Sword", "Z")
+                                        Useskills("Sword", "X")
+                                        wait(.1)
+                                        Useskills("Blox Fruit", "Z")
+                                        Useskills("Blox Fruit", "X")
+                                        Useskills("Blox Fruit", "C")
+                                        wait(.1)
+                                        Useskills("Gun", "Z")
+                                        Useskills("Gun", "X")
+                                    end
                                 end
                             until _G.Leviathan1 == false or not b:FindFirstChild("HumanoidRootPart") or not b.Parent or b.Health.Value <= 0
                         end
@@ -9964,6 +10154,27 @@ Tabs.Shop:AddButton({
     end
 })   
 Tabs.Shop:AddButton({
+    Title = "Craft LeviathanCrown",
+    Description = "",
+    Callback = function()
+        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanCrown");
+    end
+})   
+Tabs.Shop:AddButton({
+    Title = "Craft LeviathanShield",
+    Description = "",
+    Callback = function()
+        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanShield");
+    end
+})   
+Tabs.Shop:AddButton({
+    Title = "Craft LeviathanBoat",
+    Description = "",
+    Callback = function()
+        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanBoat");
+    end
+})   
+Tabs.Shop:AddButton({
     Title = "Craft LegendaryScroll",
     Description = "",
     Callback = function()
@@ -10686,291 +10897,8 @@ Actived = function()
         end
     end
 end
--- ========================================================
 -- ==================== TAB LEVIATHAN ====================
--- Init variables combat settings (default tout actif)
-_G.LevMeleeZ = true
-_G.LevMeleeX = true
-_G.LevMeleeC = true
-_G.LevSwordZ = true
-_G.LevSwordX = true
-_G.LevBloxZ  = true
-_G.LevBloxX  = true
-_G.LevBloxC  = true
-_G.LevBloxV  = true
-_G.LevBloxF  = true
-_G.LevGunZ   = true
-_G.LevGunX   = true
-Tabs.Leviathan:AddSection("Leviathan / Spy")
-local SPYING_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " Spy Status ",
-    Content = ""
-})
-spawn(function()
-    while wait(.2) do
-        pcall(function()
-            local ok, result = pcall(function()
-                return replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1")
-            end)
-            if ok and result then
-                local spycheck = string.match(tostring(result), "%d+")
-                if spycheck then
-                    SPYING_LEV:SetDesc(" Spy Leviathan  : " .. tostring(spycheck))
-                    if tostring(spycheck) == "5" then
-                        SPYING_LEV:SetDesc(" Spy Leviathan : Already Done!!")
-                    end
-                end
-            end
-        end)
-    end
-end)
-Tabs.Leviathan:AddButton({
-    Title = "Buy Fracments with Spy",
-    Description = "Buy the spy for finding leviathan",
-    Callback = function()
-        replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
-    end
-})
-Tabs.Leviathan:AddSection("Live Status")
-local LevHP_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " Leviathan HP ",
-    Content = "Not Spawned"
-})
-local LevSpawn_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " Leviathan Spawn ",
-    Content = "Not Spawned"
-})
-spawn(function()
-    local wasSpawned = false
-    while wait(.3) do
-        pcall(function()
-            local lev = workspace.SeaBeasts:FindFirstChild("Leviathan")
-            if lev and lev:FindFirstChild("Health") then
-                LevHP_LEV:SetDesc(" HP : " .. tostring(math.floor(lev.Health.Value)))
-            else
-                LevHP_LEV:SetDesc(" Not Spawned")
-            end
-            if lev and not wasSpawned then
-                wasSpawned = true
-                LevSpawn_LEV:SetDesc(" [!] Leviathan SPAWNED !")
-            elseif not lev then
-                wasSpawned = false
-                LevSpawn_LEV:SetDesc(" Not Spawned")
-            end
-        end)
-    end
-end)
-Tabs.Leviathan:AddSection("Frozen Dimension")
-local FloD_LEV = Tabs.Leviathan:AddParagraph({
-    Title = " FlozenDimension Status ",
-    Content = ""
-})
-spawn(function()
-    while wait(.2) do
-        pcall(function()
-            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
-                FloD_LEV:SetDesc(' Flozen Dimension : True')
-            else
-                FloD_LEV:SetDesc(' Flozen Dimension : False')
-            end
-        end)
-    end
-end)
-local FrozenTP_LEV = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
-    Title = "Auto Teleport Frozen Dimension",
-    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
-    Default = false
-})
-FrozenTP_LEV:OnChanged(function(Value)
-    _G.FrozenTP = Value
-end)
-spawn(function()
-    while wait(.1) do
-        if _G.FrozenTP then
-            pcall(function()
-                if workspace.Map:FindFirstChild("LeviathanGate") then
-                    _tp(workspace.Map.LeviathanGate.CFrame)
-                    replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("OpenLeviathanGate")
-                end
-            end)
-        end
-    end
-end)
-Tabs.Leviathan:AddSection("Hydra Island")
-local HydraIsland_LEV = Tabs.Leviathan:AddToggle("HydraIsland_LEV", {
-    Title = "Auto Drive To Hydra Island",
-    Description = "",
-    Default = false
-})
-HydraIsland_LEV:OnChanged(function(Value)
-    _G.SailBoat_Hydra = Value
-end)
-spawn(function()
-    while wait() do
-        if _G.SailBoat_Hydra then
-            pcall(function()
-                local myBoat = CheckBoat()
-                if not myBoat then
-                    local buyBoatCFrame = CFrame.new(- 16927.451, 9.086, 433.864)
-                    TeleportToTarget(buyBoatCFrame)
-                    if (buyBoatCFrame.Position - plr.Character.HumanoidRootPart.Position).Magnitude <= 10 then
-                        replicated.Remotes.CommF_:InvokeServer("BuyBoat", _G.SelectedBoat)
-                    end
-                elseif myBoat then
-                    if plr.Character.Humanoid.Sit == false then
-                        local boatSeatCFrame = myBoat.VehicleSeat.CFrame * CFrame.new(0, 1, 0)
-                        _tp(boatSeatCFrame)
-                    else
-                        repeat
-                            wait()
-                            if CheckEnemiesBoat() or CheckPirateGrandBrigade() or CheckTerrorShark() then
-                                _tp(CFrame.new(5433, 150, 290))
-                            else
-                                _tp(CFrame.new(5433, 35, 290))
-                            end
-                        until _G.SailBoat_Hydra == false or plr.Character:WaitForChild("Humanoid").Sit == false
-                        plr.Character.Humanoid.Sit = false
-                    end
-                end
-            end)
-        end
-    end
-end)
-Tabs.Leviathan:AddSection("Auto Attack")
-local Leviathan1_LEV = Tabs.Leviathan:AddToggle("Leviathan1_LEV", {
-    Title = "Auto Attack Leviathan (Multi-Segment)",
-    Description = "",
-    Default = false
-})
-Leviathan1_LEV:OnChanged(function(Value)
-    _G.Leviathan1 = Value
-end)
-Tabs.Leviathan:AddSection("Combat Settings")
-local LevMeleeZ = Tabs.Leviathan:AddToggle("LevMeleeZ", { Title = "Melee — Z", Default = true })
-LevMeleeZ:OnChanged(function(v) _G.LevMeleeZ = v end)
-local LevMeleeX = Tabs.Leviathan:AddToggle("LevMeleeX", { Title = "Melee — X", Default = true })
-LevMeleeX:OnChanged(function(v) _G.LevMeleeX = v end)
-local LevMeleeC = Tabs.Leviathan:AddToggle("LevMeleeC", { Title = "Melee — C", Default = true })
-LevMeleeC:OnChanged(function(v) _G.LevMeleeC = v end)
-local LevSwordZ = Tabs.Leviathan:AddToggle("LevSwordZ", { Title = "Sword — Z", Default = true })
-LevSwordZ:OnChanged(function(v) _G.LevSwordZ = v end)
-local LevSwordX = Tabs.Leviathan:AddToggle("LevSwordX", { Title = "Sword — X", Default = true })
-LevSwordX:OnChanged(function(v) _G.LevSwordX = v end)
-local LevBloxZ = Tabs.Leviathan:AddToggle("LevBloxZ", { Title = "Blox Fruit — Z", Default = true })
-LevBloxZ:OnChanged(function(v) _G.LevBloxZ = v end)
-local LevBloxX = Tabs.Leviathan:AddToggle("LevBloxX", { Title = "Blox Fruit — X", Default = true })
-LevBloxX:OnChanged(function(v) _G.LevBloxX = v end)
-local LevBloxC = Tabs.Leviathan:AddToggle("LevBloxC", { Title = "Blox Fruit — C", Default = true })
-LevBloxC:OnChanged(function(v) _G.LevBloxC = v end)
-local LevBloxV = Tabs.Leviathan:AddToggle("LevBloxV", { Title = "Blox Fruit — V", Default = true })
-LevBloxV:OnChanged(function(v) _G.LevBloxV = v end)
-local LevBloxF = Tabs.Leviathan:AddToggle("LevBloxF", { Title = "Blox Fruit — F", Default = true })
-LevBloxF:OnChanged(function(v) _G.LevBloxF = v end)
-local LevGunZ = Tabs.Leviathan:AddToggle("LevGunZ", { Title = "Gun — Z", Default = true })
-LevGunZ:OnChanged(function(v) _G.LevGunZ = v end)
-local LevGunX = Tabs.Leviathan:AddToggle("LevGunX", { Title = "Gun — X", Default = true })
-LevGunX:OnChanged(function(v) _G.LevGunX = v end)
-Tabs.Leviathan:AddSection("Sanguine Art")
-local SanguineArt_LEV = Tabs.Leviathan:AddToggle("SanguineArt_LEV", {
-    Title = "Auto SanguineArt",
-    Description = "",
-    Default = false
-})
-SanguineArt_LEV:OnChanged(function(Value)
-    _G.snaguine = Value
-end)
-spawn(function()
-    while wait(Sec) do
-        if _G.snaguine then
-            pcall(function()
-                if not GetBP("Sanguine Art") then
-                    replicated.Remotes.CommF_:InvokeServer("Sanguine Art")
-                end
-                if not GetBP("Sanguine Art") then
-                    if GetM("Leviathan Heart") >= 1 then
-                        print("Completed!!")
-                    else
-                        if World3 then
-                            _G.DangerSc = "Lv Infinite"
-                            _G.SailBoats = true;
-                        else
-                            _G.SailBoats = false;
-                        end
-                    end
-                    if GetM("Vampire Fang") <= 19 then
-                        if World2 then
-                            local n = GetConnectionEnemies("Vampire")
-                            if n then
-                                repeat
-                                    task.wait()
-                                    Attack.Kill(n, _G.snaguine)
-                                until not _G.snaguine or n.Humanoid.Health <= 0 or not n.Parent
-                            else
-                                _tp(CFrame.new(- 6041.29248046875, 6.402710914611816, - 1304.63330078125))
-                            end
-                        else
-                            replicated.Remotes.CommF_:InvokeServer("TravelDressrosa")
-                        end
-                    end
-                    if GetM("Vampire Fang") >= 20 and GetM("Demonic Wisp") <= 19 then
-                        if World3 then
-                            local n = GetConnectionEnemies("Demonic Soul")
-                            if n then
-                                repeat
-                                    task.wait()
-                                    Attack.Kill(n, _G.snaguine)
-                                until not _G.snaguine or n.Humanoid.Health <= 0 or not n.Parent
-                            else
-                                _tp(CFrame.new(- 9495.6806640625, 453.58624267578125, 5977.3486328125))
-                            end
-                        else
-                            replicated.Remotes.CommF_:InvokeServer("TravelZou")
-                        end
-                    end
-                    if GetM("Vampire Fang") >= 20 and GetM("Demonic Wisp") >= 20 and GetM("Dark Fragment") <= 1 then
-                        if World2 then
-                            local n = GetConnectionEnemies("Darkbeard")
-                            if n then
-                                repeat
-                                    task.wait()
-                                    Attack.Kill(black, _G.snaguine)
-                                until _G.snaguine or black.Humanoid.Health <= 0 or not black.Parent
-                            else
-                                _tp(CFrame.new(3798.4575195313, 13.826690673828, - 3399.806640525))
-                            end
-                        else
-                            replicated.Remotes.CommF_:InvokeServer("TravelDressrosa")
-                        end
-                    end
-                else
-                    replicated.Remotes.CommF_:InvokeServer("BuySanguineArt")
-                end
-            end)
-        end
-    end
-end)
-Tabs.Leviathan:AddSection("Craft Leviathan Items")
-Tabs.Leviathan:AddButton({
-    Title = "Craft LeviathanCrown",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanCrown")
-    end
-})
-Tabs.Leviathan:AddButton({
-    Title = "Craft LeviathanShield",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanShield")
-    end
-})
-Tabs.Leviathan:AddButton({
-    Title = "Craft LeviathanBoat",
-    Description = "",
-    Callback = function()
-        replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanBoat")
-    end
-})
+Tabs.Leviathan:AddSection("Leviathan")
 -- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
