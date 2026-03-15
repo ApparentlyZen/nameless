@@ -2007,7 +2007,7 @@ local Tabs = {
     }),
     Leviathan = Window:AddTab({
         Title = "Leviathan",
-        Icon = "zap"
+        Icon = "target"
     }),
     Raids = Window:AddTab({
         Title = "Raid",
