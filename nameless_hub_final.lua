@@ -10898,7 +10898,180 @@ Actived = function()
     end
 end
 -- ==================== TAB LEVIATHAN ====================
-Tabs.Leviathan:AddSection("Leviathan")
+-- Init variables combat settings
+_G.LevMeleeZ = true
+_G.LevMeleeX = true
+_G.LevMeleeC = true
+_G.LevSwordZ = true
+_G.LevSwordX = true
+_G.LevBloxZ  = true
+_G.LevBloxX  = true
+_G.LevBloxC  = true
+_G.LevBloxV  = true
+_G.LevBloxF  = true
+_G.LevGunZ   = true
+_G.LevGunX   = true
+
+Tabs.Leviathan:AddSection("Leviathan / Spy")
+local SPYING_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Spy Status ",
+    Content = "Loading..."
+})
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            local ok, result = pcall(function()
+                return replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1")
+            end)
+            if ok and result then
+                local spycheck = string.match(tostring(result), "%d+")
+                if spycheck then
+                    if tostring(spycheck) == "5" then
+                        SPYING_LEV:SetDesc(" Spy Leviathan : Already Done!!")
+                    else
+                        SPYING_LEV:SetDesc(" Spy Leviathan : " .. tostring(spycheck) .. " / 5")
+                    end
+                end
+            end
+        end)
+    end
+end)
+Tabs.Leviathan:AddButton({
+    Title = "Buy Fracments with Spy",
+    Description = "Buy the spy for finding leviathan",
+    Callback = function()
+        pcall(function()
+            replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
+        end)
+    end
+})
+Tabs.Leviathan:AddSection("Live Status")
+local LevHP_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Leviathan HP ",
+    Content = "Not Spawned"
+})
+local LevSpawn_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Leviathan Spawn ",
+    Content = "Not Spawned"
+})
+local FloD_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Frozen Dimension ",
+    Content = "Loading..."
+})
+spawn(function()
+    local wasSpawned = false
+    while wait(.3) do
+        pcall(function()
+            local lev = workspace.SeaBeasts:FindFirstChild("Leviathan")
+            if lev and lev:FindFirstChild("Health") then
+                LevHP_LEV:SetDesc(" HP : " .. tostring(math.floor(lev.Health.Value)))
+            else
+                LevHP_LEV:SetDesc(" Not Spawned")
+            end
+            if lev and not wasSpawned then
+                wasSpawned = true
+                LevSpawn_LEV:SetDesc(" [!] Leviathan SPAWNED !")
+            elseif not lev then
+                wasSpawned = false
+                LevSpawn_LEV:SetDesc(" Not Spawned")
+            end
+            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
+                FloD_LEV:SetDesc(' Frozen Dimension : Active')
+            else
+                FloD_LEV:SetDesc(' Frozen Dimension : Inactive')
+            end
+        end)
+    end
+end)
+Tabs.Leviathan:AddSection("Frozen Dimension")
+local FrozenTP_LEV = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
+    Title = "Auto Teleport Frozen Dimension",
+    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
+    Default = false
+})
+FrozenTP_LEV:OnChanged(function(Value)
+    _G.FrozenTP = Value
+end)
+Tabs.Leviathan:AddSection("Hydra Island")
+local HydraIsland_LEV = Tabs.Leviathan:AddToggle("HydraIsland_LEV", {
+    Title = "Auto Drive To Hydra Island",
+    Description = "",
+    Default = false
+})
+HydraIsland_LEV:OnChanged(function(Value)
+    _G.SailBoat_Hydra = Value
+end)
+Tabs.Leviathan:AddSection("Auto Attack")
+local Leviathan1_LEV = Tabs.Leviathan:AddToggle("Leviathan1_LEV", {
+    Title = "Auto Attack Leviathan (Multi-Segment)",
+    Description = "",
+    Default = false
+})
+Leviathan1_LEV:OnChanged(function(Value)
+    _G.Leviathan1 = Value
+end)
+Tabs.Leviathan:AddSection("Combat Settings")
+local LevMeleeZ = Tabs.Leviathan:AddToggle("LevMeleeZ", { Title = "Melee - Z", Default = true })
+LevMeleeZ:OnChanged(function(v) _G.LevMeleeZ = v end)
+local LevMeleeX = Tabs.Leviathan:AddToggle("LevMeleeX", { Title = "Melee - X", Default = true })
+LevMeleeX:OnChanged(function(v) _G.LevMeleeX = v end)
+local LevMeleeC = Tabs.Leviathan:AddToggle("LevMeleeC", { Title = "Melee - C", Default = true })
+LevMeleeC:OnChanged(function(v) _G.LevMeleeC = v end)
+local LevSwordZ = Tabs.Leviathan:AddToggle("LevSwordZ", { Title = "Sword - Z", Default = true })
+LevSwordZ:OnChanged(function(v) _G.LevSwordZ = v end)
+local LevSwordX = Tabs.Leviathan:AddToggle("LevSwordX", { Title = "Sword - X", Default = true })
+LevSwordX:OnChanged(function(v) _G.LevSwordX = v end)
+local LevBloxZ = Tabs.Leviathan:AddToggle("LevBloxZ", { Title = "Blox Fruit - Z", Default = true })
+LevBloxZ:OnChanged(function(v) _G.LevBloxZ = v end)
+local LevBloxX = Tabs.Leviathan:AddToggle("LevBloxX", { Title = "Blox Fruit - X", Default = true })
+LevBloxX:OnChanged(function(v) _G.LevBloxX = v end)
+local LevBloxC = Tabs.Leviathan:AddToggle("LevBloxC", { Title = "Blox Fruit - C", Default = true })
+LevBloxC:OnChanged(function(v) _G.LevBloxC = v end)
+local LevBloxV = Tabs.Leviathan:AddToggle("LevBloxV", { Title = "Blox Fruit - V", Default = true })
+LevBloxV:OnChanged(function(v) _G.LevBloxV = v end)
+local LevBloxF = Tabs.Leviathan:AddToggle("LevBloxF", { Title = "Blox Fruit - F", Default = true })
+LevBloxF:OnChanged(function(v) _G.LevBloxF = v end)
+local LevGunZ = Tabs.Leviathan:AddToggle("LevGunZ", { Title = "Gun - Z", Default = true })
+LevGunZ:OnChanged(function(v) _G.LevGunZ = v end)
+local LevGunX = Tabs.Leviathan:AddToggle("LevGunX", { Title = "Gun - X", Default = true })
+LevGunX:OnChanged(function(v) _G.LevGunX = v end)
+Tabs.Leviathan:AddSection("Sanguine Art")
+local SanguineArt_LEV = Tabs.Leviathan:AddToggle("SanguineArt_LEV", {
+    Title = "Auto SanguineArt",
+    Description = "",
+    Default = false
+})
+SanguineArt_LEV:OnChanged(function(Value)
+    _G.snaguine = Value
+end)
+Tabs.Leviathan:AddSection("Craft Leviathan Items")
+Tabs.Leviathan:AddButton({
+    Title = "Craft LeviathanCrown",
+    Description = "",
+    Callback = function()
+        pcall(function()
+            replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanCrown")
+        end)
+    end
+})
+Tabs.Leviathan:AddButton({
+    Title = "Craft LeviathanShield",
+    Description = "",
+    Callback = function()
+        pcall(function()
+            replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanShield")
+        end)
+    end
+})
+Tabs.Leviathan:AddButton({
+    Title = "Craft LeviathanBoat",
+    Description = "",
+    Callback = function()
+        pcall(function()
+            replicated.Remotes.CommF_:InvokeServer("CraftItem", "Craft", "LeviathanBoat")
+        end)
+    end
+})
 -- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
