@@ -10897,9 +10897,106 @@ Actived = function()
         end
     end
 end
--- TAB LEVIATHAN
-Tabs.Leviathan:AddSection("Leviathan")
--- END
+-- ==================== TAB LEVIATHAN ====================
+Tabs.Leviathan:AddSection("Leviathan / Spy")
+local SPYING_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Spy Status ",
+    Content = ""
+})
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            local ok, result = pcall(function()
+                return replicated.Remotes.CommF_:InvokeServer("InfoLeviathan", "1")
+            end)
+            if ok and result then
+                local spycheck = string.match(tostring(result), "%d+")
+                if spycheck then
+                    if tostring(spycheck) == "5" then
+                        SPYING_LEV:SetDesc(" Spy Leviathan : Already Done!!")
+                    else
+                        SPYING_LEV:SetDesc(" Spy Leviathan : " .. tostring(spycheck) .. " / 5")
+                    end
+                end
+            end
+        end)
+    end
+end)
+Tabs.Leviathan:AddButton({
+    Title = "Buy Fracments with Spy",
+    Description = "Buy the spy for finding leviathan",
+    Callback = function()
+        pcall(function()
+            replicated:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("InfoLeviathan", "2")
+        end)
+    end
+})
+Tabs.Leviathan:AddSection("Live Status")
+local LevHP_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Leviathan HP ",
+    Content = ""
+})
+local LevSpawn_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Leviathan Spawn ",
+    Content = ""
+})
+local FloD_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Frozen Dimension ",
+    Content = ""
+})
+spawn(function()
+    local wasSpawned = false
+    while wait(.3) do
+        pcall(function()
+            local lev = workspace.SeaBeasts:FindFirstChild("Leviathan")
+            if lev and lev:FindFirstChild("Health") then
+                LevHP_LEV:SetDesc(" HP : " .. tostring(math.floor(lev.Health.Value)))
+            else
+                LevHP_LEV:SetDesc(" Not Spawned")
+            end
+            if lev and not wasSpawned then
+                wasSpawned = true
+                LevSpawn_LEV:SetDesc(" [!] Leviathan SPAWNED !")
+            elseif not lev then
+                wasSpawned = false
+                LevSpawn_LEV:SetDesc(" Not Spawned")
+            end
+            if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
+                FloD_LEV:SetDesc(" Frozen Dimension : Active")
+            else
+                FloD_LEV:SetDesc(" Frozen Dimension : Inactive")
+            end
+        end)
+    end
+end)
+Tabs.Leviathan:AddSection("Frozen Dimension")
+local FrozenTP_LEV = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
+    Title = "Auto Teleport Frozen Dimension",
+    Description = "turn on for teleport to frozen dimension",
+    Default = false
+})
+FrozenTP_LEV:OnChanged(function(Value)
+    _G.FrozenTP = Value
+end)
+Tabs.Leviathan:AddSection("Hydra Island")
+local HydraIsland_LEV = Tabs.Leviathan:AddToggle("HydraIsland_LEV", {
+    Title = "Auto Drive To Hydra Island",
+    Description = "",
+    Default = false
+})
+HydraIsland_LEV:OnChanged(function(Value)
+    _G.SailBoat_Hydra = Value
+end)
+Tabs.Leviathan:AddSection("Auto Attack")
+local Leviathan1_LEV = Tabs.Leviathan:AddToggle("Leviathan1_LEV", {
+    Title = "Auto Attack Leviathan (Multi-Segment)",
+    Description = "",
+    Default = false
+})
+Leviathan1_LEV:OnChanged(function(Value)
+    _G.Leviathan1 = Value
+end)
+-- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
 local ImageButton = Instance.new("ImageButton");
