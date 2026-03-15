@@ -10931,6 +10931,71 @@ Tabs.Leviathan:AddButton({
         end)
     end
 })
+Tabs.Leviathan:AddSection("Live Status")
+local LevHP_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Leviathan HP ",
+    Content = ""
+})
+local LevSpawn_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Leviathan Spawn ",
+    Content = ""
+})
+local FloD_LEV = Tabs.Leviathan:AddParagraph({
+    Title = " Frozen Dimension ",
+    Content = ""
+})
+spawn(function()
+    local wasSpawned = false
+    while wait(.3) do
+        pcall(function()
+            local lev = workspace.SeaBeasts:FindFirstChild("Leviathan")
+            if lev and lev:FindFirstChild("Health") then
+                LevHP_LEV:SetDesc(" HP : " .. tostring(math.floor(lev.Health.Value)))
+            else
+                LevHP_LEV:SetDesc(" Not Spawned")
+            end
+            if lev and not wasSpawned then
+                wasSpawned = true
+                LevSpawn_LEV:SetDesc(" [!] Leviathan SPAWNED !")
+            elseif not lev then
+                wasSpawned = false
+                LevSpawn_LEV:SetDesc(" Not Spawned")
+            end
+            if workspace._WorldOrigin.Locations:FindFirstChild('Frozen Dimension') then
+                FloD_LEV:SetDesc(' Frozen Dimension : Active')
+            else
+                FloD_LEV:SetDesc(' Frozen Dimension : Inactive')
+            end
+        end)
+    end
+end)
+Tabs.Leviathan:AddSection("Frozen Dimension")
+local FrozenTP_LEV = Tabs.Leviathan:AddToggle("FrozenTP_LEV", {
+    Title = "Auto Teleport Frozen Dimension",
+    Description = "turn on for teleport to frozen dimension and start the leviathan gate",
+    Default = false
+})
+FrozenTP_LEV:OnChanged(function(Value)
+    _G.FrozenTP = Value
+end)
+Tabs.Leviathan:AddSection("Hydra Island")
+local HydraIsland_LEV = Tabs.Leviathan:AddToggle("HydraIsland_LEV", {
+    Title = "Auto Drive To Hydra Island",
+    Description = "",
+    Default = false
+})
+HydraIsland_LEV:OnChanged(function(Value)
+    _G.SailBoat_Hydra = Value
+end)
+Tabs.Leviathan:AddSection("Auto Attack")
+local Leviathan1_LEV = Tabs.Leviathan:AddToggle("Leviathan1_LEV", {
+    Title = "Auto Attack Leviathan (Multi-Segment)",
+    Description = "",
+    Default = false
+})
+Leviathan1_LEV:OnChanged(function(Value)
+    _G.Leviathan1 = Value
+end)
 -- ========================================================
 Window:SelectTab(1)
 local ScreenGui = Instance.new("ScreenGui");
