@@ -1960,8 +1960,8 @@ end
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Window = Fluent:CreateWindow({
-    Title = "AnDepZai Hub [Premium]",
-    SubTitle = "[Mode]",
+    Title = "Namless Hub [Beta Version]",
+    SubTitle = "[By Zen]",
     TabWidth = 180,
     Size = UDim2.fromOffset(485, 370),
     Acrylic = false,
