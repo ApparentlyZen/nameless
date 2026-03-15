@@ -8038,34 +8038,21 @@ spawn(function()
                                 end)
                                 if plr:DistanceFromCharacter(b.HumanoidRootPart.CFrame.Position) <= 500 then
                                     MousePos = b:FindFirstChild("Leviathan Segment").Position;
-                                    if CheckF() and _G.LevUseBlox then
-                                        weaponSc("Blox Fruit")
-                                        Useskills("Blox Fruit", "Z")
-                                        Useskills("Blox Fruit", "X")
-                                        Useskills("Blox Fruit", "C")
-                                    else
-                                        if _G.LevUseMelee then
-                                            Useskills("Melee", "Z")
-                                            Useskills("Melee", "X")
-                                            Useskills("Melee", "C")
-                                            wait(.1)
-                                        end
-                                        if _G.LevUseSword then
-                                            Useskills("Sword", "Z")
-                                            Useskills("Sword", "X")
-                                            wait(.1)
-                                        end
-                                        if _G.LevUseBlox then
-                                            Useskills("Blox Fruit", "Z")
-                                            Useskills("Blox Fruit", "X")
-                                            Useskills("Blox Fruit", "C")
-                                            wait(.1)
-                                        end
-                                        if _G.LevUseGun then
-                                            Useskills("Gun", "Z")
-                                            Useskills("Gun", "X")
-                                        end
-                                    end
+                                    if _G.LevMeleeZ then Useskills("Melee", "Z") end
+                                    if _G.LevMeleeX then Useskills("Melee", "X") end
+                                    if _G.LevMeleeC then Useskills("Melee", "C") end
+                                    wait(.1)
+                                    if _G.LevSwordZ then Useskills("Sword", "Z") end
+                                    if _G.LevSwordX then Useskills("Sword", "X") end
+                                    wait(.1)
+                                    if _G.LevBloxZ then Useskills("Blox Fruit", "Z") end
+                                    if _G.LevBloxX then Useskills("Blox Fruit", "X") end
+                                    if _G.LevBloxC then Useskills("Blox Fruit", "C") end
+                                    if _G.LevBloxV then Useskills("Blox Fruit", "V") end
+                                    if _G.LevBloxF then Useskills("Blox Fruit", "F") end
+                                    wait(.1)
+                                    if _G.LevGunZ then Useskills("Gun", "Z") end
+                                    if _G.LevGunX then Useskills("Gun", "X") end
                                 end
                             until _G.Leviathan1 == false or not b:FindFirstChild("HumanoidRootPart") or not b.Parent or b.Health.Value <= 0
                         end
@@ -10702,10 +10689,18 @@ end
 -- ========================================================
 -- ==================== TAB LEVIATHAN ====================
 -- Init variables combat settings (default tout actif)
-_G.LevUseMelee = true
-_G.LevUseSword = true
-_G.LevUseBlox  = true
-_G.LevUseGun   = true
+_G.LevMeleeZ = true
+_G.LevMeleeX = true
+_G.LevMeleeC = true
+_G.LevSwordZ = true
+_G.LevSwordX = true
+_G.LevBloxZ  = true
+_G.LevBloxX  = true
+_G.LevBloxC  = true
+_G.LevBloxV  = true
+_G.LevBloxF  = true
+_G.LevGunZ   = true
+_G.LevGunX   = true
 Tabs.Leviathan:AddSection("Leviathan / Spy")
 local SPYING_LEV = Tabs.Leviathan:AddParagraph({
     Title = " Spy Status ",
@@ -10846,34 +10841,30 @@ Leviathan1_LEV:OnChanged(function(Value)
     _G.Leviathan1 = Value
 end)
 Tabs.Leviathan:AddSection("Combat Settings")
-local LevMelee_LEV = Tabs.Leviathan:AddToggle("LevMelee_LEV", {
-    Title = "Use Melee Skills (Z/X/C)",
-    Default = true
-})
-LevMelee_LEV:OnChanged(function(Value)
-    _G.LevUseMelee = Value
-end)
-local LevSword_LEV = Tabs.Leviathan:AddToggle("LevSword_LEV", {
-    Title = "Use Sword Skills (Z/X)",
-    Default = true
-})
-LevSword_LEV:OnChanged(function(Value)
-    _G.LevUseSword = Value
-end)
-local LevBlox_LEV = Tabs.Leviathan:AddToggle("LevBlox_LEV", {
-    Title = "Use Blox Fruit Skills (Z/X/C)",
-    Default = true
-})
-LevBlox_LEV:OnChanged(function(Value)
-    _G.LevUseBlox = Value
-end)
-local LevGun_LEV = Tabs.Leviathan:AddToggle("LevGun_LEV", {
-    Title = "Use Gun Skills (Z/X)",
-    Default = true
-})
-LevGun_LEV:OnChanged(function(Value)
-    _G.LevUseGun = Value
-end)
+local LevMeleeZ = Tabs.Leviathan:AddToggle("LevMeleeZ", { Title = "Melee — Z", Default = true })
+LevMeleeZ:OnChanged(function(v) _G.LevMeleeZ = v end)
+local LevMeleeX = Tabs.Leviathan:AddToggle("LevMeleeX", { Title = "Melee — X", Default = true })
+LevMeleeX:OnChanged(function(v) _G.LevMeleeX = v end)
+local LevMeleeC = Tabs.Leviathan:AddToggle("LevMeleeC", { Title = "Melee — C", Default = true })
+LevMeleeC:OnChanged(function(v) _G.LevMeleeC = v end)
+local LevSwordZ = Tabs.Leviathan:AddToggle("LevSwordZ", { Title = "Sword — Z", Default = true })
+LevSwordZ:OnChanged(function(v) _G.LevSwordZ = v end)
+local LevSwordX = Tabs.Leviathan:AddToggle("LevSwordX", { Title = "Sword — X", Default = true })
+LevSwordX:OnChanged(function(v) _G.LevSwordX = v end)
+local LevBloxZ = Tabs.Leviathan:AddToggle("LevBloxZ", { Title = "Blox Fruit — Z", Default = true })
+LevBloxZ:OnChanged(function(v) _G.LevBloxZ = v end)
+local LevBloxX = Tabs.Leviathan:AddToggle("LevBloxX", { Title = "Blox Fruit — X", Default = true })
+LevBloxX:OnChanged(function(v) _G.LevBloxX = v end)
+local LevBloxC = Tabs.Leviathan:AddToggle("LevBloxC", { Title = "Blox Fruit — C", Default = true })
+LevBloxC:OnChanged(function(v) _G.LevBloxC = v end)
+local LevBloxV = Tabs.Leviathan:AddToggle("LevBloxV", { Title = "Blox Fruit — V", Default = true })
+LevBloxV:OnChanged(function(v) _G.LevBloxV = v end)
+local LevBloxF = Tabs.Leviathan:AddToggle("LevBloxF", { Title = "Blox Fruit — F", Default = true })
+LevBloxF:OnChanged(function(v) _G.LevBloxF = v end)
+local LevGunZ = Tabs.Leviathan:AddToggle("LevGunZ", { Title = "Gun — Z", Default = true })
+LevGunZ:OnChanged(function(v) _G.LevGunZ = v end)
+local LevGunX = Tabs.Leviathan:AddToggle("LevGunX", { Title = "Gun — X", Default = true })
+LevGunX:OnChanged(function(v) _G.LevGunX = v end)
 Tabs.Leviathan:AddSection("Sanguine Art")
 local SanguineArt_LEV = Tabs.Leviathan:AddToggle("SanguineArt_LEV", {
     Title = "Auto SanguineArt",
