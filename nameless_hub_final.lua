@@ -639,17 +639,22 @@ local function CreateMenu()
         return Page
     end
 
+    local _layoutOrder = 0
     local function AddSection(page, title)
+        _layoutOrder = _layoutOrder + 1
         local lbl = Instance.new("TextLabel", page)
         lbl.Size = UDim2.new(1, -10, 0, 18); lbl.BackgroundTransparency = 1
         lbl.Text = "── " .. title:upper() .. " ──"
         lbl.Font = Theme.Font; lbl.TextSize = 14
         lbl.TextColor3 = Theme.Accent; lbl.TextXAlignment = "Left"
+        lbl.LayoutOrder = _layoutOrder
     end
 
     local function AddToggle(page, title, default, callback)
+        _layoutOrder = _layoutOrder + 1
         local row = Instance.new("Frame", page)
         row.Size = UDim2.new(1, -10, 0, 36); row.BackgroundColor3 = Theme.Tab_Bg; row.BorderSizePixel = 0
+        row.LayoutOrder = _layoutOrder
         Instance.new("UICorner", row).CornerRadius = UDim.new(0, 4)
         Instance.new("UIStroke", row).Color = Theme.Border
 
@@ -676,8 +681,10 @@ local function CreateMenu()
     end
 
     local function AddSlider(page, title, default, min, max, callback)
+        _layoutOrder = _layoutOrder + 1
         local row = Instance.new("Frame", page)
         row.Size = UDim2.new(1, -10, 0, 52); row.BackgroundColor3 = Theme.Tab_Bg; row.BorderSizePixel = 0
+        row.LayoutOrder = _layoutOrder
         Instance.new("UICorner", row).CornerRadius = UDim.new(0, 4)
         Instance.new("UIStroke", row).Color = Theme.Border
 
@@ -722,8 +729,10 @@ local function CreateMenu()
 
     -- ── Dropdown avec liste déroulante cliquable ─────────────────────
     local function AddDropdown(page, title, values, defaultIdx, callback)
+        _layoutOrder = _layoutOrder + 1
         local row = Instance.new("Frame", page)
         row.Size = UDim2.new(1, -10, 0, 36); row.BackgroundColor3 = Theme.Tab_Bg; row.BorderSizePixel = 0
+        row.LayoutOrder = _layoutOrder
         Instance.new("UICorner", row).CornerRadius = UDim.new(0, 4)
         Instance.new("UIStroke", row).Color = Theme.Border
 
@@ -802,7 +811,9 @@ local function CreateMenu()
     end
 
     local function AddButton(page, title, callback)
+        _layoutOrder = _layoutOrder + 1
         local btn = Instance.new("TextButton", page)
+        btn.LayoutOrder = _layoutOrder
         btn.Size = UDim2.new(1, -10, 0, 26)
         btn.BackgroundColor3 = Theme.Accent; btn.BorderSizePixel = 0
         btn.Text = title; btn.Font = Theme.Font; btn.TextSize = 15
