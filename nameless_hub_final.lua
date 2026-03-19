@@ -885,13 +885,20 @@ end
 local speedEnabled = false
 local speedValue   = 50
 
+local speedConn = nil
+
 local function applySpeed()
-    local char = player.Character if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum then hum.WalkSpeed = speedValue end
+    if speedConn then speedConn:Disconnect() end
+    speedConn = RunService.Heartbeat:Connect(function()
+        if not speedEnabled then return end
+        local char = player.Character if not char then return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = speedValue end
+    end)
 end
 
 local function resetSpeed()
+    if speedConn then speedConn:Disconnect() speedConn = nil end
     local char = player.Character if not char then return end
     local hum = char:FindFirstChildOfClass("Humanoid")
     if hum then hum.WalkSpeed = 16 end
@@ -1181,6 +1188,37 @@ RunService.Heartbeat:Connect(function()
         end
     end
 end)
+
+-- =====================================================================
+-- FONT CHANGER
+-- =====================================================================
+local fontChangerEnabled = false
+local fontPreset         = "GothamSsm"
+local updatedFonts       = {}
+local fontConn2          = nil
+
+local function applyFontTo(inst)
+    if not (inst.ClassName=="TextLabel" or inst.ClassName=="TextButton" or inst.ClassName=="TextBox") then return end
+    local original = tostring(inst.Font):split(".")[3] or "GothamSsm"
+    local conn = inst:GetPropertyChangedSignal("Font"):Connect(function()
+        pcall(function() inst.Font = Enum.Font[fontPreset] end)
+    end)
+    table.insert(updatedFonts, {inst=inst, original=original, conn=conn})
+    pcall(function() inst.Font = Enum.Font[fontPreset] end)
+end
+
+local function enableFonts()
+    fontConn2 = game.DescendantAdded:Connect(function(v) pcall(applyFontTo, v) end)
+    for _, v in game:GetDescendants() do pcall(applyFontTo, v) end
+end
+
+local function disableFonts()
+    pcall(function() if fontConn2 then fontConn2:Disconnect() end end)
+    for _, e in ipairs(updatedFonts) do
+        pcall(function() e.conn:Disconnect() e.inst.Font = Enum.Font[e.original] or Enum.Font.GothamSsm end)
+    end
+    table.clear(updatedFonts)
+end
 
 -- =====================================================================
 -- VSKILL MODULE — Pause/Restore pendant skills spéciaux
@@ -1817,7 +1855,35 @@ ESPNPCBox:AddToggle("ESPNPCs", {
 -- =====================================================================
 -- TAB FONT
 -- =====================================================================
--- (vide pour l'instant)
+local FontBox = Tabs.Font:AddLeftGroupbox("Font Changer")
+
+local fontList = {}
+for _, v in Enum.Font:GetEnumItems() do
+    table.insert(fontList, tostring(v):split(".")[3])
+end
+
+FontBox:AddDropdown("FontStyle", {
+    Values = fontList, Default = 1,
+    Text = "Font Style", Searchable = true,
+    Callback = function(v)
+        fontPreset = v
+        if fontChangerEnabled then disableFonts() enableFonts() end
+    end,
+})
+FontBox:AddToggle("FontChanger", {
+    Text = "Activer Font Changer", Default = false,
+    Callback = function(v)
+        fontChangerEnabled = v
+        if v then enableFonts() else disableFonts() end
+    end,
+})
+FontBox:AddButton({
+    Text = "Rafraîchir",
+    Func = function()
+        if fontChangerEnabled then disableFonts() enableFonts()
+        else Library:Notify({Title="Font", Description="Active d'abord le toggle!", Time=3}) end
+    end,
+})
 
 -- =====================================================================
 -- TAB SETTINGS
