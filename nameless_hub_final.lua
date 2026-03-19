@@ -1323,6 +1323,74 @@ player.CharacterAdded:Connect(onVCharacterAdded)
 if player.Character then onVCharacterAdded(player.Character) end
 
 -- =====================================================================
+-- SORU AUTO AIM — Logique exacte + Ally check + Select Player
+-- =====================================================================
+local SoruAutoAimEnabled = false
+local CurrentTarget      = nil
+local SoruSelectedPlayer = nil  -- joueur sélectionné manuellement
+
+local function isSoruAlly(targetPlayer)
+    local myGui = player:FindFirstChild("PlayerGui")
+    if not myGui then return false end
+    local scrolling = myGui:FindFirstChild("Main")
+        and myGui.Main:FindFirstChild("Allies")
+        and myGui.Main.Allies:FindFirstChild("Container")
+        and myGui.Main.Allies.Container:FindFirstChild("Allies")
+        and myGui.Main.Allies.Container.Allies:FindFirstChild("ScrollingFrame")
+    if scrolling then
+        for _, frame in pairs(scrolling:GetDescendants()) do
+            if frame:IsA("ImageButton") and frame.Name == targetPlayer.Name then return true end
+        end
+    end
+    return false
+end
+
+local function isSoruEnemy(targetPlayer)
+    if not targetPlayer or targetPlayer == player then return false end
+    local myTeam     = player.Team
+    local targetTeam = targetPlayer.Team
+    if myTeam and targetTeam then
+        if myTeam.Name == "Pirates"  and targetTeam.Name == "Marines" then return true end
+        if myTeam.Name == "Marines"  and targetTeam.Name == "Pirates"  then return true end
+        if myTeam.Name == "Pirates"  and targetTeam.Name == "Pirates"  then
+            return not isSoruAlly(targetPlayer)
+        end
+        if myTeam.Name == "Marines"  and targetTeam.Name == "Marines"  then return false end
+    end
+    return true
+end
+
+getgenv().SoruAutoAim = false
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if getgenv().SoruAutoAim then
+            -- Si un joueur spécifique est sélectionné
+            if SoruSelectedPlayer and SoruSelectedPlayer.Character and SoruSelectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                CurrentTarget = SoruSelectedPlayer.Character.HumanoidRootPart
+            else
+                -- Sinon le plus proche qui est ennemi
+                local closest, shortestDist = nil, 300
+                local myPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if myPart then
+                    for _, v in pairs(Players:GetPlayers()) do
+                        if v ~= player and isSoruEnemy(v) and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            local root = v.Character.HumanoidRootPart
+                            local dist = (root.Position - myPart.Position).Magnitude
+                            if dist < shortestDist then shortestDist = dist closest = root end
+                        end
+                    end
+                end
+                CurrentTarget = closest
+            end
+        else
+            CurrentTarget = nil
+        end
+    end
+end)
+
+-- =====================================================================
 -- HOOK __namecall
 -- =====================================================================
 local oldNamecall
@@ -1332,6 +1400,18 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, V1, V2, ...)
 
         -- ✅ WHITELIST TAP — Portal jamais redirigé
         if V1 == "TAP" then return oldNamecall(self, V1, V2, ...) end
+
+        -- SORU AUTO AIM hook (InvokeServer depuis Humanoid)
+        if getgenv().SoruAutoAim and CurrentTarget then
+            local method2 = getnamecallmethod()
+            if method2 == "InvokeServer" and self.Parent and tostring(self.Parent) == "Humanoid" then
+                local newArgs = {V1, V2, ...}
+                for i, arg in pairs(newArgs) do
+                    if typeof(arg) == "Vector3" then newArgs[i] = CurrentTarget.Position end
+                end
+                return oldNamecall(self, table.unpack(newArgs))
+            end
+        end
 
         -- Godhuman Z detection
         if type(V1) == "string" and V1:upper() == "Z" then
@@ -1363,6 +1443,19 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, V1, V2, ...)
     end
     return oldNamecall(self, V1, V2, ...)
 end)
+
+-- Hook Mouse.Hit pour Soru Auto Aim
+local mt2 = getrawmetatable(game)
+local oldIndex2 = mt2.__index
+setreadonly(mt2, false)
+mt2.__index = newcclosure(function(t, k)
+    if getgenv().SoruAutoAim and t == Mouse and CurrentTarget then
+        if k == "Hit"    then return CurrentTarget.CFrame end
+        if k == "Target" then return CurrentTarget end
+    end
+    return oldIndex2(t, k)
+end)
+setreadonly(mt2, true)
 
 -- =====================================================================
 -- TOOL WATCHER
@@ -1432,37 +1525,26 @@ end)
 
 SoruBox:AddToggle("SoruAimToggle", {
     Text = "Soru Auto Aim", Default = false,
-    Tooltip = "Redirige tes attaques vers l'ennemi le plus proche",
+    Tooltip = "Redirige tes attaques vers l'ennemi le plus proche (ignore les alliés)",
     Callback = function(v)
-        SilentAimPlayersEnabled = v
-        UserWantsPlayerAim = v
-        if v then startRenderLoop() else if not SilentAimNPCsEnabled then stopRenderLoop() end end
+        SoruAutoAimEnabled = v
+        getgenv().SoruAutoAim = v
+        if not v then CurrentTarget = nil end
     end,
 })
 
 SoruBox:AddDropdown("SoruSelectPlayer", {
     Values = soruPlayerNames, Default = 1,
     Text = "Select Target",
-    Tooltip = "Lock sur un joueur spécifique",
+    Tooltip = "Lock sur un joueur spécifique (None = auto)",
     Callback = function(v)
-        if v == "None" then Selectedplayer = nil
-        else local found = Players:FindFirstChild(v) if found then Selectedplayer = found end end
+        if v == "None" then
+            SoruSelectedPlayer = nil
+        else
+            local found = Players:FindFirstChild(v)
+            if found then SoruSelectedPlayer = found end
+        end
     end,
-})
-
-SoruBox:AddToggle("SoruHighlight", {
-    Text = "Highlight Target", Default = false,
-    Callback = function(v) HighlightEnabled = v if not v then clearHighlight() end end,
-})
-
-SoruBox:AddToggle("SoruPrediction", {
-    Text = "Prediction", Default = false,
-    Callback = function(v) PredictionEnabled = v end,
-})
-
-SoruBox:AddSlider("SoruDistanceLimit", {
-    Text = "Distance Max", Default = 1000, Min = 50, Max = 3000, Rounding = 0, Suffix = "m",
-    Callback = function(v) maxRange = v end,
 })
 
 -- =====================================================================
