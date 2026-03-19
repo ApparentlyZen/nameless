@@ -1542,6 +1542,7 @@ local Tabs = {
     Legit    = Window:AddTab("Legit",    "crosshair"),
     Player   = Window:AddTab("Player",   "user"),
     Glitch   = Window:AddTab("Glitch",   "zap"),
+    Macro    = Window:AddTab("Macro",    "play"),
     Visual   = Window:AddTab("Visual",   "eye"),
     Font     = Window:AddTab("Font",     "type"),
     Settings = Window:AddTab("Settings", "settings"),
@@ -1811,6 +1812,140 @@ DiamondBox:AddSlider("DiamondDuration", {
 DiamondBox:AddSlider("DiamondCharge", {
     Text = "Charge Min", Default = 10, Min = 1, Max = 50, Rounding = 0, Suffix = "00ms",
     Callback = function(v) diamondRequiredCharge = v/10 end,
+})
+
+-- =====================================================================
+-- MACRO SYSTEM — Combo automatique par skill
+-- =====================================================================
+local VIM = game:GetService("VirtualInputManager")
+
+local macroRunning = false
+
+-- Config par catégorie : { enabled, delay (cs), keycode }
+local MacroConfig = {
+    Melee = {
+        Z = { enabled=false, delay=10 },
+        X = { enabled=false, delay=10 },
+        C = { enabled=false, delay=10 },
+        V = { enabled=false, delay=10 },
+        F = { enabled=false, delay=10 },
+    },
+    Fruit = {
+        Z = { enabled=false, delay=10 },
+        X = { enabled=false, delay=10 },
+        C = { enabled=false, delay=10 },
+        V = { enabled=false, delay=10 },
+        F = { enabled=false, delay=10 },
+    },
+    Gun = {
+        Z = { enabled=false, delay=10 },
+        X = { enabled=false, delay=10 },
+        C = { enabled=false, delay=10 },
+        V = { enabled=false, delay=10 },
+        F = { enabled=false, delay=10 },
+    },
+}
+
+local keyMap = {
+    Z = Enum.KeyCode.Z,
+    X = Enum.KeyCode.X,
+    C = Enum.KeyCode.C,
+    V = Enum.KeyCode.V,
+    F = Enum.KeyCode.F,
+}
+
+local function pressKey(kc, delayCs)
+    VIM:SendKeyEvent(true,  kc, false, game)
+    task.wait(0.05)
+    VIM:SendKeyEvent(false, kc, false, game)
+    task.wait(delayCs / 100)
+end
+
+local function getCurrentCategory()
+    local char = player.Character
+    if not char then return nil end
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then
+            local n = tool.Name:lower()
+            if n:find("gun") or n:find("rifle") or n:find("musket") or n:find("cannon") then
+                return "Gun"
+            elseif n:find("sword") or n:find("katana") or n:find("blade") or n:find("cutlass") or n:find("saber") then
+                return "Melee"
+            else
+                return "Fruit"
+            end
+        end
+    end
+    return nil
+end
+
+local macroConn = nil
+local macroOrder = {"Z","X","C","V","F"}
+
+local function startMacro()
+    if macroConn then macroConn:Disconnect() end
+    macroConn = RunService.Heartbeat:Connect(function()
+        if not macroRunning then return end
+        local cat = getCurrentCategory()
+        if not cat then return end
+        local cfg = MacroConfig[cat]
+        task.spawn(function()
+            for _, skill in ipairs(macroOrder) do
+                if cfg[skill].enabled then
+                    pressKey(keyMap[skill], cfg[skill].delay)
+                end
+            end
+        end)
+    end)
+end
+
+local function stopMacro()
+    if macroConn then macroConn:Disconnect() macroConn = nil end
+    macroRunning = false
+end
+
+-- =====================================================================
+-- TAB MACRO UI
+-- =====================================================================
+local MeleeBox = Tabs.Macro:AddLeftGroupbox("Melee")
+local FruitBox = Tabs.Macro:AddRightGroupbox("Fruit")
+local GunBox   = Tabs.Macro:AddLeftGroupbox("Gun")
+local MacroCtrl = Tabs.Macro:AddRightGroupbox("Control")
+
+-- Helper pour créer les toggles/sliders par catégorie
+local function buildSkillUI(box, catName)
+    for _, skill in ipairs({"Z","X","C","V","F"}) do
+        box:AddToggle("Macro"..catName..skill, {
+            Text = skill .. " Skill", Default = false,
+            Callback = function(v) MacroConfig[catName][skill].enabled = v end,
+        })
+        box:AddSlider("MacroDelay"..catName..skill, {
+            Text = skill.." Délai", Default = 10, Min = 1, Max = 200, Rounding = 0, Suffix = " cs",
+            Callback = function(v) MacroConfig[catName][skill].delay = v end,
+        })
+        box:AddDivider()
+    end
+end
+
+buildSkillUI(MeleeBox, "Melee")
+buildSkillUI(FruitBox, "Fruit")
+buildSkillUI(GunBox,   "Gun")
+
+MacroCtrl:AddToggle("MacroActive", {
+    Text = "Activer Macro", Default = false,
+    Tooltip = "Lance le combo automatiquement selon l'outil équipé",
+    Callback = function(v)
+        macroRunning = v
+        if v then startMacro() else stopMacro() end
+    end,
+})
+MacroCtrl:AddLabel("Détection auto :")
+MacroCtrl:AddLabel("Gun = fusil/pistolet")
+MacroCtrl:AddLabel("Melee = épée/katana")
+MacroCtrl:AddLabel("Fruit = tout le reste")
+MacroCtrl:AddButton({
+    Text = "Stop Macro",
+    Func = function() stopMacro() end,
 })
 
 -- =====================================================================
