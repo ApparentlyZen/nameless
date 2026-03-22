@@ -2,6 +2,7 @@
 -- NAMELESS.CLIENT | Custom UI + Silent Aim Full
 -- By HimselfZen
 -- =====================================================================
+print("[NAMELESS] Script loading...")
 
 -- =====================================================================
 -- SERVICES
@@ -1440,23 +1441,25 @@ end
 -- Hook détection Shark Z / Dough V / Cursed Z
 if not getgenv().VSkillHooked then
     getgenv().VSkillHooked = true
-    local vOld
-    vOld = hookmetamethod(game, "__namecall", function(self, ...)
-        local method = getnamecallmethod()
-        local args = {...}
-        if method == "InvokeServer" or method == "FireServer" then
-            local a1 = args[1]
-            if typeof(a1) == "string" then
-                if a1:upper() == "Z" then
-                    if v_currentTool and v_currentTool.Name == "Shark Anchor" then sharkZActive = true end
-                    if v_currentTool and v_currentTool.Name == "Cursed Dual Katana" then cursedZActive = true end
-                end
-                if a1:upper() == "V" then
-                    if v_lastTool == "Dough-Dough" then vActive = true end
+    pcall(function()
+        local vOld
+        vOld = hookmetamethod(game, "__namecall", function(self, ...)
+            local method = getnamecallmethod()
+            local args = {...}
+            if method == "InvokeServer" or method == "FireServer" then
+                local a1 = args[1]
+                if typeof(a1) == "string" then
+                    if a1:upper() == "Z" then
+                        if v_currentTool and v_currentTool.Name == "Shark Anchor" then sharkZActive = true end
+                        if v_currentTool and v_currentTool.Name == "Cursed Dual Katana" then cursedZActive = true end
+                    end
+                    if a1:upper() == "V" then
+                        if v_lastTool == "Dough-Dough" then vActive = true end
+                    end
                 end
             end
-        end
-        return vOld(self, ...)
+            return vOld(self, ...)
+        end)
     end)
 end
 
@@ -1554,68 +1557,72 @@ end)
 -- HOOK __namecall
 -- =====================================================================
 local oldNamecall
-oldNamecall = hookmetamethod(game, "__namecall", function(self, V1, V2, ...)
-    local method = getnamecallmethod():lower()
-    if method == "fireserver" or method == "invokeserver" then
+pcall(function()
+    oldNamecall = hookmetamethod(game, "__namecall", function(self, V1, V2, ...)
+        local method = getnamecallmethod():lower()
+        if method == "fireserver" or method == "invokeserver" then
 
-        -- ✅ WHITELIST TAP — Portal jamais redirigé
-        if V1 == "TAP" then return oldNamecall(self, V1, V2, ...) end
+            -- ✅ WHITELIST TAP — Portal jamais redirigé
+            if V1 == "TAP" then return oldNamecall(self, V1, V2, ...) end
 
-        -- SORU AUTO AIM hook (InvokeServer depuis Humanoid)
-        if getgenv().SoruAutoAim and CurrentTarget then
-            local method2 = getnamecallmethod()
-            if method2 == "InvokeServer" and self.Parent and tostring(self.Parent) == "Humanoid" then
-                local newArgs = {V1, V2, ...}
-                for i, arg in pairs(newArgs) do
-                    if typeof(arg) == "Vector3" then newArgs[i] = CurrentTarget.Position end
+            -- SORU AUTO AIM hook (InvokeServer depuis Humanoid)
+            if getgenv().SoruAutoAim and CurrentTarget then
+                local method2 = getnamecallmethod()
+                if method2 == "InvokeServer" and self.Parent and tostring(self.Parent) == "Humanoid" then
+                    local newArgs = {V1, V2, ...}
+                    for i, arg in pairs(newArgs) do
+                        if typeof(arg) == "Vector3" then newArgs[i] = CurrentTarget.Position end
+                    end
+                    return oldNamecall(self, table.unpack(newArgs))
                 end
-                return oldNamecall(self, table.unpack(newArgs))
+            end
+
+            -- Godhuman Z detection
+            if type(V1) == "string" and V1:upper() == "Z" then
+                if currentTool and currentTool.Name == "Godhuman" then godhumanZActive = true end
+            end
+
+            -- FireServer V1 = Vector3
+            if method == "fireserver" and typeof(V1) == "Vector3" then
+                if SilentAimPlayersEnabled and PlayersPosition then return oldNamecall(self, PlayersPosition, V2, ...)
+                elseif SilentAimNPCsEnabled and NPCPosition then return oldNamecall(self, NPCPosition, V2, ...) end
+            end
+
+            -- FireServer Booms (ZSkillorM1)
+            if method == "fireserver" and type(V1) == "string" and table.find(Booms, V1) and ZSkillorM1 then
+                if SilentAimPlayersEnabled and PlayersPosition then return oldNamecall(self, V1, PlayersPosition, nil, ...)
+                elseif SilentAimNPCsEnabled and NPCPosition then return oldNamecall(self, V1, NPCPosition, nil, ...) end
+            end
+
+            -- InvokeServer V2 = Vector3
+            if method == "invokeserver" and typeof(V2) == "Vector3" then
+                if type(V1) == "string" and table.find(Booms, V1) and not ZSkillorM1 then
+                    return oldNamecall(self, V1, V2, ...)
+                end
+                if SilentAimPlayersEnabled and PlayersPosition then return oldNamecall(self, V1, PlayersPosition, ...)
+                elseif SilentAimNPCsEnabled and NPCPosition then return oldNamecall(self, V1, NPCPosition, ...) end
             end
         end
-
-        -- Godhuman Z detection
-        if type(V1) == "string" and V1:upper() == "Z" then
-            if currentTool and currentTool.Name == "Godhuman" then godhumanZActive = true end
-        end
-
-        -- FireServer V1 = Vector3
-        if method == "fireserver" and typeof(V1) == "Vector3" then
-            if SilentAimPlayersEnabled and PlayersPosition then return oldNamecall(self, PlayersPosition, V2, ...)
-            elseif SilentAimNPCsEnabled and NPCPosition then return oldNamecall(self, NPCPosition, V2, ...) end
-        end
-
-        -- FireServer Booms (ZSkillorM1)
-        if method == "fireserver" and type(V1) == "string" and table.find(Booms, V1) and ZSkillorM1 then
-            if SilentAimPlayersEnabled and PlayersPosition then return oldNamecall(self, V1, PlayersPosition, nil, ...)
-            elseif SilentAimNPCsEnabled and NPCPosition then return oldNamecall(self, V1, NPCPosition, nil, ...) end
-        end
-
-
-        -- InvokeServer V2 = Vector3
-        -- Si V1 est un skill (X, Z...) et ZSkillorM1 est OFF → laisser passer sans modifier
-        if method == "invokeserver" and typeof(V2) == "Vector3" then
-            if type(V1) == "string" and table.find(Booms, V1) and not ZSkillorM1 then
-                return oldNamecall(self, V1, V2, ...)
-            end
-            if SilentAimPlayersEnabled and PlayersPosition then return oldNamecall(self, V1, PlayersPosition, ...)
-            elseif SilentAimNPCsEnabled and NPCPosition then return oldNamecall(self, V1, NPCPosition, ...) end
-        end
-    end
-    return oldNamecall(self, V1, V2, ...)
+        return oldNamecall(self, V1, V2, ...)
+    end)
 end)
 
 -- Hook Mouse.Hit pour Soru Auto Aim
-local mt2 = getrawmetatable(game)
-local oldIndex2 = mt2.__index
-setreadonly(mt2, false)
-mt2.__index = newcclosure(function(t, k)
-    if getgenv().SoruAutoAim and t == Mouse and CurrentTarget then
-        if k == "Hit"    then return CurrentTarget.CFrame end
-        if k == "Target" then return CurrentTarget end
-    end
-    return oldIndex2(t, k)
+pcall(function()
+    local mt2 = getrawmetatable(game)
+    if not mt2 then return end
+    local oldIndex2 = mt2.__index
+    setreadonly(mt2, false)
+    local _newcc = newcclosure or function(f) return f end
+    mt2.__index = _newcc(function(t, k)
+        if getgenv().SoruAutoAim and t == Mouse and CurrentTarget then
+            if k == "Hit"    then return CurrentTarget.CFrame end
+            if k == "Target" then return CurrentTarget end
+        end
+        return oldIndex2(t, k)
+    end)
+    setreadonly(mt2, true)
 end)
-setreadonly(mt2, true)
 
 -- =====================================================================
 -- TOOL WATCHER
