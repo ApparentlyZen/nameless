@@ -5,6 +5,20 @@
 print("[NAMELESS] Script loading...")
 
 -- =====================================================================
+-- EXECUTOR FALLBACKS (Delta compatibility)
+-- =====================================================================
+local getgenv        = getgenv        or function() return _G end
+local getrenv        = getrenv        or function() return {} end
+local hookmetamethod = hookmetamethod or function() end
+local getrawmetatable= getrawmetatable or getmetatable
+local setreadonly    = setreadonly    or function() end
+local newcclosure    = newcclosure    or function(f) return f end
+local getnamecallmethod = getnamecallmethod or function() return "" end
+if not Drawing then
+    Drawing = { new = function() return {Visible=false,Remove=function()end} end }
+end
+
+-- =====================================================================
 -- SERVICES
 -- =====================================================================
 local Players          = game:GetService("Players")
@@ -419,7 +433,7 @@ local function startAutoKenLoop()
                         and playerGui.MobileContextButtons.ContextButtonFrame:FindFirstChild("BoundActionKen")
                     if kenButton and kenButton:GetAttribute("Selected") ~= true then kenButton:SetAttribute("Selected", true) end
                 end
-                local om = getrenv()._G.OM
+                local om = pcall(function() return getrenv()._G and getrenv()._G.OM end) and getrenv()._G and getrenv()._G.OM or nil
                 if om and not om.active then om.radius = 0 om:setActive(true) if commE then commE:FireServer("Ken", true) end end
             end
         end
