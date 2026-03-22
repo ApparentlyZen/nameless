@@ -1,5 +1,5 @@
 -- =====================================================================
--- GOTCHA.EXE | Obsidian UI + Silent Aim Full
+-- NAMELESS.CLIENT| Obsidian UI + Silent Aim Full
 -- By HimselfZen
 -- =====================================================================
 
@@ -51,15 +51,13 @@ local MiniNpcCreated    = false
 local MiniPlayerGui, MiniNpcGui = nil, nil
 local characterConnections = {}
 
--- ZSkill Godhuman (toujours actif, pas de toggle)
-local godhumanZActive    = false
-local aimlockActive      = false
-local aimRenderConn      = nil
-local aimTimeoutTask     = nil
-local nearestZTarget     = nil
-local aimDmgConn         = nil
-local TargetInfo         = false
-local targetInfoConn     = nil
+-- ZSkill Godhuman
+local ZSkillsEnabled  = false
+local godhumanZActive = false
+local aimlockActive   = false
+local aimRenderConn   = nil
+local aimTimeoutTask  = nil
+local nearestZTarget  = nil
 
 -- TAP whitelisté = Portal jamais redirigé
 local Booms  = {}
@@ -294,7 +292,7 @@ local function stopRenderLoop()
 end
 
 -- =====================================================================
--- ZSKILL GODHUMAN AIMLOCK (toujours actif)
+-- ZSKILL GODHUMAN AIMLOCK
 -- =====================================================================
 local function stopAimlock()
     if not aimlockActive then return end
@@ -304,14 +302,15 @@ local function stopAimlock()
 end
 
 local function startAimlock()
-    if aimlockActive then return end
+    if not ZSkillsEnabled or aimlockActive then return end
     local char = player.Character
     local lpHRP = char and char:FindFirstChild("HumanoidRootPart")
     local target = getClosestPlayer(lpHRP)
-    if not target or not target.Character then return end
+    if not target then return end
     nearestZTarget = target.Character aimlockActive = true
 
     aimRenderConn = RunService.RenderStepped:Connect(function()
+        if not ZSkillsEnabled then stopAimlock() return end
         if aimlockActive and nearestZTarget and nearestZTarget:FindFirstChild("HumanoidRootPart") then
             local cam = workspace.CurrentCamera
             if cam then cam.CFrame = CFrame.lookAt(cam.CFrame.Position, nearestZTarget.HumanoidRootPart.Position) end
@@ -320,24 +319,8 @@ local function startAimlock()
     aimTimeoutTask = task.delay(1, function() if aimlockActive then stopAimlock() end end)
 end
 
--- Stoppe l'aimlock si un dégât est détecté pendant le Z
-local function watchAimlockDamage()
-    if aimDmgConn then pcall(function() aimDmgConn:Disconnect() end) aimDmgConn = nil end
-    task.spawn(function()
-        local gui = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("Main")
-        if not gui then return end
-        local dmgCounter = gui:FindFirstChild("DmgCounter")
-        if not dmgCounter then return end
-        local dmgLabel = dmgCounter:FindFirstChild("Text")
-        if not dmgLabel then return end
-        aimDmgConn = dmgLabel:GetPropertyChangedSignal("Text"):Connect(function()
-            local v = tonumber(dmgLabel.Text) or 0
-            if v > 0 and aimlockActive then stopAimlock() end
-        end)
-    end)
-end
-
 UserInputService.TouchEnded:Connect(function(touch)
+    if not ZSkillsEnabled then return end
     local cam = workspace.CurrentCamera
     if not cam or not touch or not touch.Position then return end
     if touch.Position.X > cam.ViewportSize.X / 2 then
@@ -351,63 +334,6 @@ end)
 -- AUTO KEN
 -- =====================================================================
 local commE = RS:FindFirstChild("Remotes") and RS.Remotes:FindFirstChild("CommE")
-
--- =====================================================================
--- TARGET INFO UI (HP + Nom cible)
--- =====================================================================
-local targetInfoSG = Instance.new("ScreenGui")
-targetInfoSG.Name = "ZTargetInfoGui" targetInfoSG.ResetOnSpawn = false
-targetInfoSG.Parent = player:WaitForChild("PlayerGui")
-
-local targetFrame = Instance.new("Frame", targetInfoSG)
-targetFrame.Size = UDim2.new(0.25, 0, 0.08, 0)
-targetFrame.Position = UDim2.new(0.5, 0, 0.05, 0)
-targetFrame.AnchorPoint = Vector2.new(0.5, 0)
-targetFrame.BackgroundTransparency = 1
-targetFrame.Visible = false
-
-local targetNameLbl = Instance.new("TextLabel", targetFrame)
-targetNameLbl.Size = UDim2.new(1, 0, 0.5, 0)
-targetNameLbl.BackgroundTransparency = 1
-targetNameLbl.TextScaled = true
-targetNameLbl.Font = Enum.Font.GothamBold
-targetNameLbl.TextColor3 = Color3.new(1,1,1)
-
-local hpBg = Instance.new("Frame", targetFrame)
-hpBg.Size = UDim2.new(1, 0, 0.35, 0)
-hpBg.Position = UDim2.new(0, 0, 0.55, 0)
-hpBg.BackgroundColor3 = Color3.fromRGB(40,40,40)
-hpBg.BorderSizePixel = 0
-
-local hpFillBar = Instance.new("Frame", hpBg)
-hpFillBar.Size = UDim2.new(1, 0, 1, 0)
-hpFillBar.BackgroundColor3 = Color3.fromRGB(0,255,0)
-hpFillBar.BorderSizePixel = 0
-
-local function startTargetInfo()
-    if targetInfoConn then return end
-    targetInfoConn = RunService.RenderStepped:Connect(function()
-        local char = player.Character
-        local lpHRP = char and char:FindFirstChild("HumanoidRootPart")
-        local target = getClosestPlayer(lpHRP)
-        if target and target.Character and target.Character:FindFirstChild("Humanoid") then
-            local hp = target.Character.Humanoid
-            targetNameLbl.Text = target.Name
-            local fill = math.clamp(hp.Health / hp.MaxHealth, 0, 1)
-            hpFillBar.Size = UDim2.new(fill, 0, 1, 0)
-            hpFillBar.BackgroundColor3 = Color3.fromRGB(math.floor(255*(1-fill)), math.floor(255*fill), 0)
-            hpBg.Visible = true hpFillBar.Visible = true targetFrame.Visible = true
-        else
-            targetNameLbl.Text = "No target"
-            hpBg.Visible = false hpFillBar.Visible = false targetFrame.Visible = true
-        end
-    end)
-end
-
-local function stopTargetInfo()
-    if targetInfoConn then targetInfoConn:Disconnect() targetInfoConn = nil end
-    targetFrame.Visible = false
-end
 local function HasTag(tagName)
     local char = player.Character
     if not char then return false end
@@ -1445,7 +1371,7 @@ local function watchVDamageCounter()
     end)
 end
 
--- Hook détection Shark Z / Dough V / Cursed Z (fusionné, ZSkill Godhuman géré dans oldNamecall)
+-- Hook détection Shark Z / Dough V / Cursed Z
 if not getgenv().VSkillHooked then
     getgenv().VSkillHooked = true
     local vOld
@@ -1645,7 +1571,6 @@ local function onCharacterAdded(char)
     table.insert(characterConnections, char.ChildRemoved:Connect(function(child)
         if child == currentTool then currentTool = nil godhumanZActive = false end
     end))
-    task.delay(2, watchAimlockDamage)
 end
 player.CharacterAdded:Connect(onCharacterAdded)
 if player.Character then onCharacterAdded(player.Character) end
@@ -1774,10 +1699,10 @@ SAPlayersBox:AddToggle("ZSkillorM1", {
     Callback = function(v) ZSkillorM1 = v end,
 })
 
-SAPlayersBox:AddToggle("TargetInfo", {
-    Text = "Target Info (HP + Nom)", Default = false,
-    Tooltip = "Affiche le nom et la vie de la cible la plus proche",
-    Callback = function(v) TargetInfo = v if v then startTargetInfo() else stopTargetInfo() end end,
+SAPlayersBox:AddToggle("GodhumanZ", {
+    Text = "Godhuman Z Aimlock", Default = false,
+    Tooltip = "Aimlock caméra 1s après le Z de Godhuman",
+    Callback = function(v) ZSkillsEnabled = v if not v then stopAimlock() end end,
 })
 
 SAPlayersBox:AddToggle("Prediction", {
